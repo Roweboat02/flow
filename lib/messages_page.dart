@@ -37,9 +37,7 @@ class Messages implements MyPage {
   @override
   Widget page(BuildContext context) {
     return ListView(
-      children: getContent(db.getMessage(), context)
-          .map<Widget>((e) => GestureDetector(child: e))
-          .toList(),
+      children: getContent(db.getMessage(), context),
     );
   }
 }
