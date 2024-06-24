@@ -21,9 +21,11 @@ class Messages implements MyPage {
     List<Widget> temp = [];
     for (Post e in posts) {
       temp.add(GestureDetector(
-        child: e.toWidget(),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: e.toWidget(),
+        ),
         onTap: () {
-          print("${e.postID}");
           Navigator.push(
               context,
               MaterialPageRoute(

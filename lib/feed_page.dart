@@ -26,7 +26,9 @@ class Feed implements MyPage {
         Column(
           children: [
             IconButton(
-                onPressed: () => print("Pressed repeat on post ${e.postID}"),
+                onPressed: () {
+                  db.repost(e.postID);
+                },
                 icon: Icon(Icons.repeat)),
             IconButton(
                 onPressed: () {

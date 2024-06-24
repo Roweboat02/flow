@@ -26,7 +26,9 @@ class Shed implements MyPage {
         Column(
           children: [
             IconButton(
-                onPressed: () => print("Pressed repeat on post ${e.postID}"),
+                onPressed: () {
+                  db.repost(e.postID);
+                },
                 icon: Icon(Icons.repeat)),
             IconButton(
                 onPressed: () {
@@ -47,12 +49,30 @@ class Shed implements MyPage {
   @override
   Widget page(BuildContext context) {
     return Card(
-      shadowColor: Colors.transparent,
-      margin: const EdgeInsets.all(8.0),
-      child: SizedBox.expand(
-          child: ListView(
-        children: getContent(db.getShed(), context),
-      )),
-    );
+        shadowColor: Colors.transparent,
+        margin: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Stack(
+              alignment: AlignmentDirectional.bottomStart,
+              children: [
+                Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                        image: DecorationImage(
+                            image: db.getShedBackground(),
+                            fit: BoxFit.fitWidth))),
+                CircleAvatar(
+                  backgroundImage: db.getUserImage(),
+                  radius: 50,
+                ),
+              ],
+            ),
+            ListView(
+              shrinkWrap: true,
+              children: getContent(db.getShed(), context),
+            ),
+          ],
+        ));
   }
 }

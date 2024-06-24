@@ -24,7 +24,9 @@ class CommentsPage implements MyPage {
         Column(
           children: [
             IconButton(
-                onPressed: () => print("Pressed repeat on post ${e.postID}"),
+                onPressed: () {
+                  db.repost(e.postID);
+                },
                 icon: Icon(Icons.repeat)),
             IconButton(
                 onPressed: () {
@@ -39,12 +41,14 @@ class CommentsPage implements MyPage {
         ),
       ]));
     }
-    temp.add(ElevatedButton.icon(
-        label: Text("exit"),
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        icon: Icon(Icons.exit_to_app)));
+    temp.add(Center(
+      child: ElevatedButton.icon(
+          label: Text("exit"),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.exit_to_app)),
+    ));
     return temp;
   }
 
