@@ -1,17 +1,23 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flow/chat/new_chat_page.dart';
 import 'package:flow/database_proxy.dart';
 import 'package:flow/feed_page.dart';
-import 'package:flow/login_screen.dart';
+import 'package:flow/login/google_sign_in.dart';
+
 import 'package:flow/shed_page.dart';
-import 'package:flow/messages_page.dart';
+import 'package:flow/chat/messages_page.dart';
 import 'package:flow/page.dart';
 import 'package:flow/person.dart';
 import 'package:flow/post.dart';
-import 'package:flow/signup_screen.dart';
-import 'package:flow/welcome_screen.dart';
+
 import 'package:flutter/material.dart';
 
-import 'new_chat_page.dart';
+import 'login/login_screen.dart';
+import 'login/signup_screen.dart';
+import 'login/welcome_screen.dart';
 import 'new_post_page.dart';
 
 void main() async {
@@ -33,7 +39,8 @@ class MyApp extends StatelessWidget {
         'welcome_screen': (context) => WelcomeScreen(),
         'registration_screen': (context) => RegistrationScreen(),
         'login_screen': (context) => LoginScreen(),
-        'home_screen': (context) => NavigationExample(title: 'Neighbor')
+        'home_screen': (context) => NavigationExample(title: 'Neighbor'),
+        'google_login_screen': (context) => GoogleSignInScreen()
         //https://medium.com/code-for-cause/flutter-registration-login-using-firebase-5ada3f14c066
       },
       theme: ThemeData(
@@ -54,14 +61,25 @@ class NavigationExample extends StatefulWidget {
 }
 
 class _NavigationExampleState extends State<NavigationExample> {
-  DatabaseProxy db = DatabaseProxy("Me");
+  late FirebaseMessaging messaging;
+
+  late DatabaseProxy db;
   late List<MyPage> pages;
   int currentPageIndex = 0;
 
   @override
-  void initState() {
+  Future<void> initState() async {
+    db = DatabaseProxy(Person(
+        await DatabaseProxy.getUserImage(
+            FirebaseAuth.instance.currentUser!.uid),
+        FirebaseAuth.instance.currentUser!.uid));
+
     pages = [Shed(db), Feed(db), Messages(db)];
     super.initState();
+    messaging = FirebaseMessaging.instance;
+    messaging.getToken().then((value) {
+      print(value);
+    });
   }
 
   @override

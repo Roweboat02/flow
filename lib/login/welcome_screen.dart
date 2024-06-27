@@ -27,6 +27,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     onPressed: () {
                       Navigator.pushNamed(context, 'registration_screen');
                     }),
+                ElevatedButton(
+                    child: Text('Log In With Google'),
+                    onPressed: () {
+                      Navigator.pushNamed(context, 'google_login_screen');
+                    }),
               ]),
         ));
   }

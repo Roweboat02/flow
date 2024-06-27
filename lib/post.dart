@@ -5,8 +5,11 @@ class Post {
   String content;
   String postID;
   Person poster;
+  num lat;
+  num long;
+  DateTime date;
 
-  Post(this.content, this.postID, this.poster);
+  Post(this.content, this.postID, this.poster, this.lat, this.long, this.date);
 
   Widget toWidget() {
     return Container(

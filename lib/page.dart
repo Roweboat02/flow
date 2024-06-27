@@ -6,7 +6,8 @@ abstract class MyPage {
   Widget page(BuildContext context);
   NavigationDestination destination();
 
-  List<Widget> getContent(List<Post> posts, BuildContext context) {
+  Future<List<Widget>> getContent(
+      List<Post> posts, BuildContext context) async {
     List<Widget> temp = [];
     for (Post e in posts) {
       temp.add(SizedBox(child: e.toWidget()));
