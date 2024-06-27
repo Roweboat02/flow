@@ -58,9 +58,21 @@ class CommentsPage implements MyPage {
       shadowColor: Colors.transparent,
       margin: const EdgeInsets.all(8.0),
       child: SizedBox.expand(
-          child: ListView(
-        children: getContent(db.getComments(postID), context),
-      )),
+          child: FutureBuilder(
+              future: db.getComments(postID),
+              builder: ((context, snapshot) {
+                if (snapshot.hasData) {
+                  return ListView(
+                    children: getContent(snapshot.data!, context),
+                  );
+                } else {
+                  return SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: CircularProgressIndicator(),
+                  );
+                }
+              }))),
     );
   }
 }

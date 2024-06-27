@@ -9,6 +9,7 @@ import 'package:flow/chat/chat.dart';
 import 'package:flow/person.dart';
 import 'package:flow/post.dart';
 import 'package:flow/post_sorting/distance_aspect.dart';
+import 'package:flow/post_sorting/relativity_god.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -21,14 +22,14 @@ class DatabaseProxy {
   // https://medium.com/firebase-tips-tricks/how-to-use-firebase-realtime-database-with-flutter-ebd98aba2c91
   final auth = FirebaseAuth.instance;
 
-  static Future<NetworkImage> getUserImage(String username) async {
+  static Future<NetworkImage> getUserImage() async {
     final String url = await FirebaseDatabase.instance
-        .ref("users/${username}/profile_picture")
+        .ref("users/${FirebaseAuth.instance.currentUser!.uid}/profile_picture")
         .get() as String;
     return NetworkImage(url);
   }
 
-  Future<Position> get position async {
+  static Future<Position> get position async {
     LocationPermission permission = await Geolocator.checkPermission();
 
     if (permission == LocationPermission.denied) {
@@ -238,10 +239,11 @@ class DatabaseProxy {
       temp.add(Post(content, pstID, Person(NetworkImage(url), username),
           lats[loc], longs[loc], date));
     }
-    return temp;
+
+    return await RelativityGod().sort(temp);
   }
 
-  Future<List<Chat>> getChats(String chatID) async {
+  Future<List<Chat>> getChats() async {
     List<String> chatIDs =
         await fb.ref("users/${user.name}/chats").get() as List<String>;
     List<Chat> temp = [];
@@ -252,7 +254,8 @@ class DatabaseProxy {
         messages.add(Message(
             message["content"], Person(message["picture"], message["user"])));
       }
-      temp.add(Chat(messages, chat["name"], chat["users"]));
+      temp.add(Chat(messages, chat["name"], chat["users"], chatID,
+          NetworkImage(chat["picture"])));
     }
     return temp;
   }
