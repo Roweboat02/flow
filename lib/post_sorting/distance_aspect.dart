@@ -1,4 +1,5 @@
-import 'package:flow/post_sorting/relativity_god.dart';
+import 'package:flow/post.dart';
+import 'package:flow/post_sorting/filter_aspect.dart';
 import 'dart:math' as math;
 
 class DistanceAspect implements FilterAspect {
@@ -21,5 +22,11 @@ class DistanceAspect implements FilterAspect {
       temp.add(findDistance(lat, long, lats[i], longs[i]));
     }
     return temp;
+  }
+
+  @override
+  List<Post> applyFilter(List<Post> posts) {
+    // TODO: implement applyFilter
+    throw UnimplementedError();
   }
 }

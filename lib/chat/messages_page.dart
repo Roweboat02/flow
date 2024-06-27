@@ -41,7 +41,7 @@ class Messages implements MyPage {
   @override
   Widget page(BuildContext context) {
     return ListView(
-      children: getContent(db.getMessage(), context),
+      children: getContent(db.getChats(), context),
     );
   }
 }
