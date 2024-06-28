@@ -9,7 +9,6 @@ import 'package:flow/login/google_sign_in.dart';
 
 import 'package:flow/shed_page.dart';
 import 'package:flow/chat/messages_page.dart';
-import 'package:flow/page.dart';
 import 'package:flow/person.dart';
 import 'package:flow/post.dart';
 
@@ -64,17 +63,17 @@ class _NavigationExampleState extends State<NavigationExample> {
   late FirebaseMessaging messaging;
 
   late DatabaseProxy db;
-  late List<MyPage> pages;
+  late List pages;
+  late Person user;
   int currentPageIndex = 0;
 
   @override
   Future<void> initState() async {
-    db = DatabaseProxy(Person(
-        await DatabaseProxy.getUserImage(
-            FirebaseAuth.instance.currentUser!.uid),
-        FirebaseAuth.instance.currentUser!.uid));
+    user = Person(await DatabaseProxy.getUserImage(),
+        FirebaseAuth.instance.currentUser!.uid);
+    db = DatabaseProxy(user);
 
-    pages = [Shed(db), Feed(db), Messages(db)];
+    pages = [Shed(db, user), Feed(db, user), Messages(db, user)];
     super.initState();
     messaging = FirebaseMessaging.instance;
     messaging.getToken().then((value) {
@@ -105,7 +104,8 @@ class _NavigationExampleState extends State<NavigationExample> {
             });
           },
           selectedIndex: currentPageIndex,
-          destinations: pages.map((page) => page.destination()).toList()),
+          destinations:
+              pages.map((page) => page.destination()).toList() as List<Widget>),
       body: pages.map((page) => page.page(context)).toList()[currentPageIndex],
     );
   }

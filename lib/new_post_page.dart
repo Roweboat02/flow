@@ -1,10 +1,9 @@
 import 'package:flow/database_proxy.dart';
-import 'package:flow/page.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/material/navigation_bar.dart';
 import 'package:flow/post.dart';
 
-class NewPostPage implements MyPage {
+class NewPostPage {
   DatabaseProxy db;
   NewPostPage(this.db);
 

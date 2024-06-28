@@ -1,5 +1,6 @@
 import 'package:flow/chat/chat.dart';
 import 'package:flow/database_proxy.dart';
+import 'package:flow/person.dart';
 import 'package:flow/post.dart';
 import 'package:flutter/material.dart';
 
@@ -8,7 +9,8 @@ import 'chat_page.dart';
 class Messages {
   //https://medium.com/@samra.sajjad0001/exploring-firebase-cloud-messaging-fcm-in-flutter-53d99d03b985
   DatabaseProxy db;
-  Messages(this.db);
+  Person user;
+  Messages(this.db, this.user);
 
   @override
   NavigationDestination destination() {
@@ -30,7 +32,8 @@ class Messages {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => ChatPage(db, e.chatID).page(context)));
+                  builder: (context) =>
+                      ChatPage(db, e.chatID, user).page(context)));
         },
       ));
     }

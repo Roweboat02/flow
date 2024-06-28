@@ -7,9 +7,11 @@ class Post {
   Person poster;
   num lat;
   num long;
+  num elevation;
   DateTime date;
 
-  Post(this.content, this.postID, this.poster, this.lat, this.long, this.date);
+  Post(this.content, this.postID, this.poster, this.lat, this.long, this.date,
+      this.elevation);
 
   Widget toWidget() {
     return Container(

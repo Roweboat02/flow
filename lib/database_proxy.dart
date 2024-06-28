@@ -91,6 +91,31 @@ class DatabaseProxy {
         "${postID}/profile_picture": user.profile.url,
         "${postID}/date": date,
         "${postID}/reposts": {},
+        "${postID}/comments/": {}
+      });
+      return true;
+    }
+  }
+
+  Future<bool> makeComment(String postID, String content) async {
+    Position pos = await position;
+    String date = DateTime.now().toString();
+    String commentID =
+        "${user.name}/${content}/${date}/postID".hashCode.toString();
+
+    final DataSnapshot snapshot = await fb.ref("posts/${postID}").get();
+    if (snapshot.exists) {
+      return false;
+    } else {
+      fb.ref("posts/$postID/comments/$commentID").update({
+        "content": content,
+        "lat": pos.latitude,
+        "long": pos.longitude,
+        "elevation": pos.altitude,
+        "user": user.name,
+        "profile_picture": user.profile.url,
+        "date": date,
+        "reposts": {},
       });
       return true;
     }
@@ -167,14 +192,9 @@ class DatabaseProxy {
       String date = commentSet[postID]!["date"];
       num lat = commentSet[postID]!["lat"];
       num long = commentSet[postID]!["long"];
-      temp.add(Post(
-        content,
-        postID,
-        Person(NetworkImage(url), username),
-        lat,
-        long,
-        DateTime.parse(date),
-      ));
+      num elevation = commentSet[postID]!["elevation"];
+      temp.add(Post(content, postID, Person(NetworkImage(url), username), lat,
+          long, DateTime.parse(date), elevation));
     }
     return temp;
   }
@@ -197,8 +217,9 @@ class DatabaseProxy {
         DateTime date = DateTime.parse(psts[pstID]!["date"]);
         num lat = psts[pstID]!["lat"];
         num long = psts[pstID]!["long"];
+        num elevation = psts[pstID]!["elevation"];
         temp.add(Post(content, pstID, Person(NetworkImage(url), username), lat,
-            long, date));
+            long, date, elevation));
       }
       for (var rpstID in rpsts.keys) {
         String content = rpsts[rpstID]!["content"];
@@ -207,8 +228,9 @@ class DatabaseProxy {
         DateTime date = DateTime.parse(rpsts[rpstID]!["date"]);
         num lat = rpsts[rpstID]!["lat"];
         num long = rpsts[rpstID]!["long"];
+        num elevation = rpsts[rpstID]!["elevation"];
         temp.add(Post(content, rpstID, Person(NetworkImage(url), username), lat,
-            long, date));
+            long, date, elevation));
       }
     }
     return temp;
@@ -224,7 +246,7 @@ class DatabaseProxy {
       String username = prePosts[pstID]!["user"];
       String url = prePosts[pstID]!["profile_picture"];
       DateTime date = DateTime.parse(prePosts[pstID]!["date"]);
-
+      num elevation = prePosts[pstID]!["elevation"];
       List<num> lats = prePosts[pstID]!["lat"];
       List<num> longs = prePosts[pstID]!["long"];
       Map<String, Map> reposts = prePosts[pstID]!["reposts"];
@@ -237,7 +259,7 @@ class DatabaseProxy {
 
       int loc = distances.firstWhere((e) => e == distances.reduce(min)) as int;
       temp.add(Post(content, pstID, Person(NetworkImage(url), username),
-          lats[loc], longs[loc], date));
+          lats[loc], longs[loc], date, elevation));
     }
 
     return await RelativityGod().sort(temp);
@@ -256,6 +278,16 @@ class DatabaseProxy {
       }
       temp.add(Chat(messages, chat["name"], chat["users"], chatID,
           NetworkImage(chat["picture"])));
+    }
+    return temp;
+  }
+
+  Future<List<Message>> getMessages(String chatID) async {
+    List<Map> messages =
+        await fb.ref("chats/${chatID}/messages").get() as List<Map>;
+    List<Message> temp = [];
+    for (var message in messages) {
+      temp.add(Message(message["content"], message["user"]));
     }
     return temp;
   }
