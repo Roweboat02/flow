@@ -8,7 +8,7 @@ import 'package:flow/feed_page.dart';
 import 'package:flow/login/google_sign_in.dart';
 
 import 'package:flow/shed_page.dart';
-import 'package:flow/chat/messages_page.dart';
+import 'package:flow/chat/chats_page.dart';
 import 'package:flow/person.dart';
 import 'package:flow/post.dart';
 
@@ -73,7 +73,7 @@ class _NavigationExampleState extends State<NavigationExample> {
         FirebaseAuth.instance.currentUser!.uid);
     db = DatabaseProxy(user);
 
-    pages = [Shed(db, user), Feed(db, user), Messages(db, user)];
+    pages = [Shed(db, user), Feed(db, user), ChatsPage(db, user)];
     super.initState();
     messaging = FirebaseMessaging.instance;
     messaging.getToken().then((value) {
