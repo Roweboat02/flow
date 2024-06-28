@@ -6,14 +6,13 @@ class Message {
   Person user;
   Message(this.content, this.user);
 
-  Widget toWidget() {
+  Widget toWidget(context) {
     return Container(
+        margin: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
-            color: Color.fromRGBO(219, 219, 219, 1),
-            border: Border.all(
-              color: Color.fromRGBO(219, 219, 219, 1),
-            ),
-            borderRadius: BorderRadius.all(Radius.circular(10))),
+            color: Theme.of(context).colorScheme.primary,
+            borderRadius: BorderRadius.circular(8.0)),
         child: Column(
           children: [
             Row(

@@ -95,7 +95,7 @@ class _NavigationExampleState extends State<NavigationExample> {
             : () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => NewChatPage(db).page(context))),
+                    builder: (context) => NewChatPage(db, user).page(context))),
       ),
       bottomNavigationBar: NavigationBar(
           onDestinationSelected: (int index) {

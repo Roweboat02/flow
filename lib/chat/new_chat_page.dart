@@ -1,4 +1,5 @@
 import 'package:flow/database_proxy.dart';
+import 'package:flow/person.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/material/navigation_bar.dart';
@@ -7,7 +8,10 @@ import 'package:flow/post.dart';
 class NewChatPage {
   DatabaseProxy db;
   final TextEditingController _searchController = TextEditingController();
-  NewChatPage(this.db);
+  Person user;
+  List<String> users = [];
+
+  NewChatPage(this.db, this.user);
 
   @override
   Widget page(BuildContext context) {
@@ -28,12 +32,24 @@ class NewChatPage {
                   },
                 ),
                 // Add a search icon or button to the search bar
-                prefixIcon: IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: () {
-                    db.contactSearch(_searchController.text.toString());
-                  },
-                ),
+                prefixIcon: Row(children: [
+                  IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () {
+                      users.add(_searchController.text);
+                      _searchController.clear();
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.send),
+                    onPressed: () {
+                      users.add(user.name);
+                      db.makeNewChat(_searchController.text, users);
+                      _searchController.clear();
+                      Navigator.pop(context);
+                    },
+                  ),
+                ]),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20.0),
                 ),

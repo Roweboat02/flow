@@ -13,83 +13,69 @@ class MessagesPage {
   String chatID;
   Person user;
   TextEditingController controller = TextEditingController();
+  late Future<List<Message>> messages;
 
-  MessagesPage(this.db, this.chatID, this.user);
+  MessagesPage(this.db, this.chatID, this.user) {
+    messages = db.getMessages(chatID);
+  }
 
   Widget page(BuildContext context) {
-    /// Messages page
-    return Column(
-      children: [
-        ListView.builder(
-          scrollDirection: Axis.vertical,
-          shrinkWrap: true,
-          reverse: true,
-          itemCount: 2,
-          itemBuilder: (BuildContext context, int index) {
-            if (index == 0) {
-              return Align(
-                alignment: Alignment.centerRight,
-                child: Container(
-                  margin: const EdgeInsets.all(8.0),
-                  padding: const EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: Text(
-                    'Hello',
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                        color: Theme.of(context).colorScheme.onPrimary),
-                  ),
-                ),
-              );
-            }
-            return Align(
-              alignment: Alignment.centerLeft,
-              child: Container(
-                margin: const EdgeInsets.all(8.0),
-                padding: const EdgeInsets.all(8.0),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary,
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Text(
-                  'Hi!',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyLarge!
-                      .copyWith(color: Theme.of(context).colorScheme.onPrimary),
-                ),
-              ),
-            );
-          },
-        ),
-        ElevatedButton.icon(
-            label: Text("exit"),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: Icon(Icons.exit_to_app)),
-        Align(
-            alignment: Alignment.bottomCenter,
-            child: Row(
+    return FutureBuilder(
+        future: messages,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Column(
               children: [
-                IconButton(onPressed: () {}, icon: Icon(Icons.add)),
-                TextField(
-                    controller: controller,
-                    decoration: InputDecoration(
-                      hintText: "Write message...",
-                    )),
-                IconButton(
+                ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  reverse: true,
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    if (snapshot.data![index].user.name == user.name) {
+                      return Align(
+                          alignment: Alignment.centerLeft,
+                          child: snapshot.data![index].toWidget(context));
+                    }
+                    return Align(
+                        alignment: Alignment.centerRight,
+                        child: snapshot.data![index].toWidget(context));
+                  },
+                ),
+                ElevatedButton.icon(
+                    label: Text("exit"),
                     onPressed: () {
-                      String message = controller.text;
-                      controller.clear();
-                      db.newMessage(chatID, Message(message, user));
+                      Navigator.pop(context);
                     },
-                    icon: Icon(Icons.send)),
+                    icon: Icon(Icons.exit_to_app)),
+                Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Row(
+                      children: [
+                        IconButton(onPressed: () {}, icon: Icon(Icons.add)),
+                        TextField(
+                            controller: controller,
+                            decoration: InputDecoration(
+                              hintText: "Write message...",
+                            )),
+                        IconButton(
+                            onPressed: () {
+                              String message = controller.text;
+                              controller.clear();
+                              db.newMessage(chatID, Message(message, user));
+                            },
+                            icon: Icon(Icons.send)),
+                      ],
+                    ))
               ],
-            ))
-      ],
-    );
+            );
+          } else {
+            return SizedBox(
+              width: 60,
+              height: 60,
+              child: CircularProgressIndicator(),
+            );
+          }
+        });
   }
 }
