@@ -62,8 +62,9 @@ class _GoogleSignInScreenState extends State<GoogleSignInScreen> {
                           ),
                           onPressed: () async {
                             userCredential.value = await signInWithGoogle();
-                            if (userCredential.value != null)
+                            if (userCredential.value != null) {
                               print(userCredential.value.user!.email);
+                            }
                           },
                         ),
                       ),

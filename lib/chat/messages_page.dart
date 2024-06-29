@@ -1,12 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flow/chat/chat.dart';
 import 'package:flow/database_proxy.dart';
 import 'package:flow/person.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/material/navigation_bar.dart';
-import 'package:flow/post.dart';
 
 class MessagesPage {
   DatabaseProxy db;
@@ -43,19 +38,19 @@ class MessagesPage {
                   },
                 ),
                 ElevatedButton.icon(
-                    label: Text("exit"),
+                    label: const Text("exit"),
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    icon: Icon(Icons.exit_to_app)),
+                    icon: const Icon(Icons.exit_to_app)),
                 Align(
                     alignment: Alignment.bottomCenter,
                     child: Row(
                       children: [
-                        IconButton(onPressed: () {}, icon: Icon(Icons.add)),
+                        IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
                         TextField(
                             controller: controller,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               hintText: "Write message...",
                             )),
                         IconButton(
@@ -64,13 +59,13 @@ class MessagesPage {
                               controller.clear();
                               db.newMessage(chatID, Message(message, user));
                             },
-                            icon: Icon(Icons.send)),
+                            icon: const Icon(Icons.send)),
                       ],
                     ))
               ],
             );
           } else {
-            return SizedBox(
+            return const SizedBox(
               width: 60,
               height: 60,
               child: CircularProgressIndicator(),

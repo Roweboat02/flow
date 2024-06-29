@@ -21,6 +21,8 @@ const kTextFieldDecoration = InputDecoration(
 );
 
 class RegistrationScreen extends StatefulWidget {
+  const RegistrationScreen({super.key});
+
   @override
   _RegistrationScreenState createState() => _RegistrationScreenState();
 }
@@ -35,7 +37,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24.0),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -49,7 +51,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 },
                 decoration: kTextFieldDecoration.copyWith(
                     hintText: 'Enter your email')),
-            SizedBox(
+            const SizedBox(
               height: 8.0,
             ),
             TextField(
@@ -61,11 +63,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 },
                 decoration: kTextFieldDecoration.copyWith(
                     hintText: 'Enter your Password')),
-            SizedBox(
+            const SizedBox(
               height: 24.0,
             ),
             ElevatedButton(
-              child: Text('Register'),
+              child: const Text('Register'),
               onPressed: () async {
                 setState(() {
                   showSpinner = true;
@@ -73,10 +75,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 try {
                   final newUser = await _auth.createUserWithEmailAndPassword(
                       email: email, password: password);
-                  if (newUser != null) {
-                    Navigator.pushNamed(context, 'home_screen');
-                  }
-                } catch (e) {
+                  Navigator.pushNamed(context, 'home_screen');
+                                } catch (e) {
                   print(e);
                 }
                 setState(() {

@@ -1,15 +1,10 @@
 import 'dart:io';
-
-import 'package:flow/database_proxy.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:camera/camera.dart';
 
 class CameraPage extends StatefulWidget {
-  const CameraPage(this.camera, this.pictureCallback, {super.key});
+  const CameraPage(this.pictureCallback, {super.key});
   final Function pictureCallback;
-  final CameraDescription camera;
 
   @override
   State<CameraPage> createState() => _CameraPageState();
@@ -18,15 +13,18 @@ class CameraPage extends StatefulWidget {
 class _CameraPageState extends State<CameraPage> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
-
+  late final CameraDescription camera;
   @override
-  void initState() {
+  Future<void> initState() async {
     super.initState();
     // To display the current output from the Camera,
     // create a CameraController.
+    final cameras = await availableCameras();
+    final firstCamera = cameras.first;
+
     _controller = CameraController(
       // Get a specific camera from the list of available cameras.
-      widget.camera,
+      firstCamera,
       // Define the resolution to use.
       ResolutionPreset.medium,
     );
@@ -111,14 +109,14 @@ class DisplayPictureScreen extends StatelessWidget {
         alignment: Alignment.topRight,
         child: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: Icon(Icons.close),
+          icon: const Icon(Icons.close),
         ),
       ),
       Image.file(File(imagePath)),
       Align(
           alignment: Alignment.bottomRight,
           child: IconButton(
-            icon: Icon(Icons.send),
+            icon: const Icon(Icons.send),
             onPressed: () {
               pictureCallback(imagePath);
               Navigator.pop(context);

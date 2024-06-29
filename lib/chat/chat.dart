@@ -29,7 +29,7 @@ class Message {
                     ],
                   ),
                 ),
-                Text(content, style: TextStyle(fontSize: 18.0))
+                Text(content, style: const TextStyle(fontSize: 18.0))
               ],
             ),
           ],
@@ -48,11 +48,11 @@ class Chat {
   Widget toWidget() {
     return Container(
         decoration: BoxDecoration(
-            color: Color.fromRGBO(219, 219, 219, 1),
+            color: const Color.fromRGBO(219, 219, 219, 1),
             border: Border.all(
-              color: Color.fromRGBO(219, 219, 219, 1),
+              color: const Color.fromRGBO(219, 219, 219, 1),
             ),
-            borderRadius: BorderRadius.all(Radius.circular(10))),
+            borderRadius: const BorderRadius.all(Radius.circular(10))),
         child: Column(
           children: [
             Row(
@@ -70,7 +70,7 @@ class Chat {
                   ),
                 ),
                 Text(messages[messages.length - 1].content,
-                    style: TextStyle(fontSize: 18.0))
+                    style: const TextStyle(fontSize: 18.0))
               ],
             ),
           ],

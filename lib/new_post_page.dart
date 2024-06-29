@@ -2,9 +2,6 @@ import 'dart:io';
 
 import 'package:flow/database_proxy.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/material/navigation_bar.dart';
-import 'package:flow/post.dart';
 
 import 'camera_page.dart';
 
@@ -28,7 +25,7 @@ class NewPostPage extends StatelessWidget {
             decoration: InputDecoration(
               hintText: "Enter comment...",
               suffixIcon: IconButton(
-                icon: Icon(Icons.close),
+                icon: const Icon(Icons.close),
                 onPressed: () {
                   controller.clear();
                   Navigator.pop(context);
@@ -37,7 +34,7 @@ class NewPostPage extends StatelessWidget {
               // Add a search icon or button to the search bar
               prefixIcon: Row(children: [
                 IconButton(
-                  icon: Icon(Icons.add),
+                  icon: const Icon(Icons.add),
                   onPressed: () {
                     Navigator.push(
                         context,
@@ -47,7 +44,7 @@ class NewPostPage extends StatelessWidget {
                                 ))));
                   },
                 ),
-                IconButton(onPressed: () {}, icon: Icon(Icons.send))
+                IconButton(onPressed: () {}, icon: const Icon(Icons.send))
               ]),
             )),
         if (imagePath != null)

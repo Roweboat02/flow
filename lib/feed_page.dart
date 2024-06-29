@@ -1,8 +1,6 @@
 import 'package:flow/database_proxy.dart';
-import 'package:flow/main.dart';
 import 'package:flow/new_comment_page.dart';
 import 'package:flow/person.dart';
-import 'package:flow/post.dart';
 import 'package:flow/tree_view.dart';
 import 'package:flutter/material.dart';
 
@@ -11,7 +9,6 @@ class Feed {
   Person user;
   Feed(this.db, this.user);
 
-  @override
   NavigationDestination destination() {
     return const NavigationDestination(
       selectedIcon: Icon(Icons.view_list),
@@ -20,7 +17,6 @@ class Feed {
     );
   }
 
-  @override
   Widget page(BuildContext context) {
     return Card(
         shadowColor: Colors.transparent,
@@ -40,7 +36,7 @@ class Feed {
                                       NewCommentPage(db, postID))),
                           (String postID) => db.repost(postID));
                     } else {
-                      return SizedBox(
+                      return const SizedBox(
                         width: 60,
                         height: 60,
                         child: CircularProgressIndicator(),

@@ -1,8 +1,8 @@
+import 'dart:io';
+
 import 'package:flow/camera_page.dart';
 import 'package:flow/database_proxy.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
 class NewCommentPage extends StatelessWidget {
   final String postID;
@@ -26,7 +26,7 @@ class NewCommentPage extends StatelessWidget {
             decoration: InputDecoration(
               hintText: "Enter comment...",
               suffixIcon: IconButton(
-                icon: Icon(Icons.close),
+                icon: const Icon(Icons.close),
                 onPressed: () {
                   controller.clear();
                   Navigator.pop(context);
@@ -35,7 +35,7 @@ class NewCommentPage extends StatelessWidget {
               // Add a search icon or button to the search bar
               prefixIcon: Row(children: [
                 IconButton(
-                  icon: Icon(Icons.add),
+                  icon: const Icon(Icons.add),
                   onPressed: () {
                     Navigator.push(
                         context,
@@ -43,11 +43,15 @@ class NewCommentPage extends StatelessWidget {
                             builder: ((context) => CameraPage(setImagePath))));
                   },
                 ),
-                IconButton(onPressed: () {}, icon: Icon(Icons.send))
+                IconButton(onPressed: () {}, icon: const Icon(Icons.send))
               ]),
             )),
         if (imagePath != null)
-          SizedBox(width: 250, height: 400, child: Image(image: image!)),
+          SizedBox(
+            width: 250,
+            height: 400,
+            child: Image.file(File(imagePath!)),
+          ),
       ],
     ));
   }

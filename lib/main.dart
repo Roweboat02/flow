@@ -1,19 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flow/chat/new_chat_page.dart';
 import 'package:flow/database_proxy.dart';
 import 'package:flow/feed_page.dart';
+import 'package:flow/firebase_options.dart';
 import 'package:flow/login/google_sign_in.dart';
-
 import 'package:flow/shed_page.dart';
 import 'package:flow/chat/chats_page.dart';
 import 'package:flow/person.dart';
-import 'package:flow/post.dart';
-
 import 'package:flutter/material.dart';
-
 import 'login/login_screen.dart';
 import 'login/signup_screen.dart';
 import 'login/welcome_screen.dart';
@@ -21,7 +17,9 @@ import 'new_post_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(MyApp());
 }
 
@@ -83,19 +81,14 @@ class _NavigationExampleState extends State<NavigationExample> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: currentPageIndex != 2
-            ? () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => NewPostPage(db).page(context)))
-            : () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => NewChatPage(db, user).page(context))),
+            ? () => Navigator.push(context,
+                MaterialPageRoute(builder: (context) => NewPostPage(db)))
+            : () => Navigator.push(context,
+                MaterialPageRoute(builder: (context) => NewChatPage(db, user))),
       ),
       bottomNavigationBar: NavigationBar(
           onDestinationSelected: (int index) {

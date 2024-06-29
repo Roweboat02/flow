@@ -1,31 +1,27 @@
 import 'package:flow/database_proxy.dart';
 import 'package:flow/person.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/material/navigation_bar.dart';
-import 'package:flow/post.dart';
 
-class NewChatPage {
+class NewChatPage extends StatelessWidget {
   DatabaseProxy db;
   final TextEditingController _searchController = TextEditingController();
   Person user;
   List<String> users = [];
 
-  NewChatPage(this.db, this.user);
+  NewChatPage(this.db, this.user, {super.key});
 
   @override
-  Widget page(BuildContext context) {
-    return Scaffold(
-        body: Column(
+  Widget build(BuildContext context) {
+    return Column(
       children: [
         Container(
-            padding: EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(8.0),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: "Contact Or Chat Name On Send...",
                 suffixIcon: IconButton(
-                  icon: Icon(Icons.close),
+                  icon: const Icon(Icons.close),
                   onPressed: () {
                     _searchController.clear();
                     Navigator.pop(context);
@@ -34,14 +30,14 @@ class NewChatPage {
                 // Add a search icon or button to the search bar
                 prefixIcon: Row(children: [
                   IconButton(
-                    icon: Icon(Icons.add),
+                    icon: const Icon(Icons.add),
                     onPressed: () {
                       users.add(_searchController.text);
                       _searchController.clear();
                     },
                   ),
                   IconButton(
-                    icon: Icon(Icons.send),
+                    icon: const Icon(Icons.send),
                     onPressed: () {
                       users.add(user.name);
                       db.makeNewChat(_searchController.text, users);
@@ -60,6 +56,6 @@ class NewChatPage {
           shrinkWrap: true,
         ) // contact list updates as searches
       ],
-    ));
+    );
   }
 }

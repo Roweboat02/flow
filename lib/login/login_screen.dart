@@ -20,6 +20,8 @@ const kTextFieldDecoration = InputDecoration(
     ));
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -35,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24.0),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -50,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 decoration: kTextFieldDecoration.copyWith(
                   hintText: 'Enter your email',
                 )),
-            SizedBox(
+            const SizedBox(
               height: 8.0,
             ),
             TextField(
@@ -62,11 +64,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
                 decoration: kTextFieldDecoration.copyWith(
                     hintText: 'Enter your password.')),
-            SizedBox(
+            const SizedBox(
               height: 24.0,
             ),
             ElevatedButton(
-                child: Text('Log In'),
+                child: const Text('Log In'),
                 onPressed: () async {
                   setState(() {
                     showSpinner = true;
@@ -74,10 +76,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   try {
                     final user = await _auth.signInWithEmailAndPassword(
                         email: email, password: password);
-                    if (user != null) {
-                      Navigator.pushNamed(context, 'home_screen');
-                    }
-                  } catch (e) {
+                    Navigator.pushNamed(context, 'home_screen');
+                                    } catch (e) {
                     print(e);
                   }
                   setState(() {
