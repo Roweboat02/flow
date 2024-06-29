@@ -1,7 +1,9 @@
-import 'package:flow/comments_page.dart';
 import 'package:flow/database_proxy.dart';
+import 'package:flow/main.dart';
+import 'package:flow/new_comment_page.dart';
 import 'package:flow/person.dart';
 import 'package:flow/post.dart';
+import 'package:flow/tree_view.dart';
 import 'package:flutter/material.dart';
 
 class Feed {
@@ -19,35 +21,6 @@ class Feed {
   }
 
   @override
-  List<Widget> getContent(List<Post> posts, BuildContext context) {
-    List<Widget> temp = [];
-    for (Post e in posts) {
-      temp.add(Row(children: [
-        Expanded(child: e.toWidget()),
-        Column(
-          children: [
-            IconButton(
-                onPressed: () {
-                  db.repost(e.postID);
-                },
-                icon: Icon(Icons.repeat)),
-            IconButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              CommentsPage(db, e.postID).page(context)));
-                },
-                icon: Icon(Icons.comment))
-          ],
-        ),
-      ]));
-    }
-    return temp;
-  }
-
-  @override
   Widget page(BuildContext context) {
     return Card(
         shadowColor: Colors.transparent,
@@ -58,9 +31,14 @@ class Feed {
                   future: db.getFeed(),
                   builder: ((context, snapshot) {
                     if (snapshot.hasData) {
-                      return ListView(
-                        children: getContent(snapshot.data!, context),
-                      );
+                      return TreeView(
+                          snapshot.data!,
+                          (String postID) => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      NewCommentPage(db, postID))),
+                          (String postID) => db.repost(postID));
                     } else {
                       return SizedBox(
                         width: 60,

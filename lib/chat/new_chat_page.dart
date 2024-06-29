@@ -23,9 +23,9 @@ class NewChatPage {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: "Search Contacts...",
+                hintText: "Contact Or Chat Name On Send...",
                 suffixIcon: IconButton(
-                  icon: Icon(Icons.clear),
+                  icon: Icon(Icons.close),
                   onPressed: () {
                     _searchController.clear();
                     Navigator.pop(context);

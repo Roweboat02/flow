@@ -1,22 +1,20 @@
-import 'dart:io';
-
+import 'package:flow/camera_page.dart';
 import 'package:flow/database_proxy.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/material/navigation_bar.dart';
-import 'package:flow/post.dart';
 
-import 'camera_page.dart';
-
-class NewPostPage extends StatelessWidget {
+class NewCommentPage extends StatelessWidget {
+  final String postID;
   final DatabaseProxy db;
   final TextEditingController controller = TextEditingController();
-  NewPostPage(this.db, {super.key});
   String? imagePath;
 
   setImagePath(String imagePath) {
     this.imagePath = imagePath;
   }
+
+  NewCommentPage(this.db, this.postID, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -42,20 +40,14 @@ class NewPostPage extends StatelessWidget {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: ((context) => CameraPage(
-                                  setImagePath,
-                                ))));
+                            builder: ((context) => CameraPage(setImagePath))));
                   },
                 ),
                 IconButton(onPressed: () {}, icon: Icon(Icons.send))
               ]),
             )),
         if (imagePath != null)
-          SizedBox(
-            width: 250,
-            height: 400,
-            child: Image.file(File(imagePath!)),
-          )
+          SizedBox(width: 250, height: 400, child: Image(image: image!)),
       ],
     ));
   }
