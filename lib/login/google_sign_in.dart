@@ -44,7 +44,7 @@ class _GoogleSignInScreenState extends State<GoogleSignInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text('Google SignIn Screen')),
+        appBar: AppBar(title: const Text('Google Sign In')),
         body: ValueListenableBuilder(
             valueListenable: userCredential,
             builder: (context, value, child) {
@@ -61,9 +61,10 @@ class _GoogleSignInScreenState extends State<GoogleSignInScreen> {
                             'assets/images/google_icon.png',
                           ),
                           onPressed: () async {
-                            userCredential.value = await signInWithGoogle();
-                            if (userCredential.value != null) {
-                              print(userCredential.value.user!.email);
+                            try {
+                              await signInWithGoogle();
+                            } finally {
+                              Navigator.pushNamed(context, 'home_screen');
                             }
                           },
                         ),

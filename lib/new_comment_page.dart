@@ -18,13 +18,12 @@ class _NewCommentPageState extends State<NewCommentPage> {
   TextEditingController controller = TextEditingController();
 
   setImagePath(String imagePath) {
-    this.imgPath = imagePath;
+    imgPath = imagePath;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        child: Column(
+    return Column(
       children: [
         TextField(
             controller: controller,
@@ -58,6 +57,6 @@ class _NewCommentPageState extends State<NewCommentPage> {
             child: Image.file(File(imgPath!)),
           ),
       ],
-    ));
+    );
   }
 }

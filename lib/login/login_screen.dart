@@ -70,9 +70,12 @@ class _LoginScreenState extends State<LoginScreen> {
             ElevatedButton(
                 child: const Text('Log In'),
                 onPressed: () async {
-                  await _auth.signInWithEmailAndPassword(
-                      email: email, password: password);
-                  Navigator.pushNamed(context, 'home_screen');
+                  try {
+                    await _auth.signInWithEmailAndPassword(
+                        email: email, password: password);
+                  } finally {
+                    Navigator.pushNamed(context, 'home_screen');
+                  }
                 }),
           ],
         ),

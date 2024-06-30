@@ -31,7 +31,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final _auth = FirebaseAuth.instance;
   late String email;
   late String password;
-  bool showSpinner = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,19 +69,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             ElevatedButton(
               child: const Text('Register'),
               onPressed: () async {
-                setState(() {
-                  showSpinner = true;
-                });
                 try {
-                  final newUser = await _auth.createUserWithEmailAndPassword(
+                  await _auth.createUserWithEmailAndPassword(
                       email: email, password: password);
+                } finally {
                   Navigator.pushNamed(context, 'home_screen');
-                                } catch (e) {
-                  print(e);
                 }
-                setState(() {
-                  showSpinner = false;
-                });
               },
             )
           ],

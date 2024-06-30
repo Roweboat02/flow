@@ -219,19 +219,21 @@ class DatabaseProxy {
         String username = psts[pstID]!["user"];
         String profile_url = psts[pstID]!["profile_picture"];
         String? url = psts[pstID]!["picture"];
-        url = url == "" ? null : url;
+        NetworkImage? img = url == "" ? null : NetworkImage(url!);
         DateTime date = DateTime.parse(psts[pstID]!["date"]);
         num lat = psts[pstID]!["lat"];
         num long = psts[pstID]!["long"];
         num elevation = psts[pstID]!["elevation"];
-        temp.add(Post(
+        Post post = Post(
             content,
             pstID,
             Person(NetworkImage(profile_url), username),
             lat,
             long,
             date,
-            elevation));
+            elevation);
+        post.addImage(img);
+        temp.add(post);
       }
       for (var rpstID in rpsts.keys) {
         String content = rpsts[rpstID]!["content"];

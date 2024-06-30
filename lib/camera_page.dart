@@ -103,8 +103,7 @@ class DisplayPictureScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        child: Column(children: [
+    return Column(children: [
       Align(
         alignment: Alignment.topRight,
         child: IconButton(
@@ -123,6 +122,6 @@ class DisplayPictureScreen extends StatelessWidget {
               Navigator.pop(context);
             },
           ))
-    ]));
+    ]);
   }
 }
