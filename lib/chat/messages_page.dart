@@ -47,7 +47,8 @@ class MessagesPage {
                     alignment: Alignment.bottomCenter,
                     child: Row(
                       children: [
-                        IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
+                        IconButton(
+                            onPressed: () {}, icon: const Icon(Icons.add)),
                         TextField(
                             controller: controller,
                             decoration: const InputDecoration(
@@ -57,7 +58,7 @@ class MessagesPage {
                             onPressed: () {
                               String message = controller.text;
                               controller.clear();
-                              db.newMessage(chatID, Message(message, user));
+                              db.makeNewMessage(chatID, Message(message, user));
                             },
                             icon: const Icon(Icons.send)),
                       ],

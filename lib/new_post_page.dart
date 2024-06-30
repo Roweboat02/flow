@@ -5,14 +5,20 @@ import 'package:flutter/material.dart';
 
 import 'camera_page.dart';
 
-class NewPostPage extends StatelessWidget {
+class NewPostPage extends StatefulWidget {
   final DatabaseProxy db;
-  final TextEditingController controller = TextEditingController();
-  NewPostPage(this.db, {super.key});
-  String? imagePath;
+  const NewPostPage(this.db, {super.key});
+
+  @override
+  State<NewPostPage> createState() => _NewPostPageState();
+}
+
+class _NewPostPageState extends State<NewPostPage> {
+  String? imgPath;
+  TextEditingController controller = TextEditingController();
 
   setImagePath(String imagePath) {
-    this.imagePath = imagePath;
+    this.imgPath = imagePath;
   }
 
   @override
@@ -47,11 +53,11 @@ class NewPostPage extends StatelessWidget {
                 IconButton(onPressed: () {}, icon: const Icon(Icons.send))
               ]),
             )),
-        if (imagePath != null)
+        if (imgPath != null)
           SizedBox(
             width: 250,
             height: 400,
-            child: Image.file(File(imagePath!)),
+            child: Image.file(File(imgPath!)),
           )
       ],
     ));

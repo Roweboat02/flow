@@ -16,7 +16,7 @@ class Post {
     comments.add(comment);
   }
 
-  addImage(NetworkImage img) {
+  addImage(NetworkImage? img) {
     image = img;
   }
 
@@ -71,8 +71,8 @@ class Post {
                                 child: Image(image: image!)),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child:
-                                Text(content, style: const TextStyle(fontSize: 18.0)),
+                            child: Text(content,
+                                style: const TextStyle(fontSize: 18.0)),
                           ),
                         ],
                       )

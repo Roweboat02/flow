@@ -4,17 +4,22 @@ import 'package:flow/camera_page.dart';
 import 'package:flow/database_proxy.dart';
 import 'package:flutter/material.dart';
 
-class NewCommentPage extends StatelessWidget {
-  final String postID;
+class NewCommentPage extends StatefulWidget {
   final DatabaseProxy db;
-  final TextEditingController controller = TextEditingController();
-  String? imagePath;
+  final String postID;
+  const NewCommentPage(this.db, this.postID, {super.key});
+
+  @override
+  State<NewCommentPage> createState() => _NewCommentPageState();
+}
+
+class _NewCommentPageState extends State<NewCommentPage> {
+  String? imgPath;
+  TextEditingController controller = TextEditingController();
 
   setImagePath(String imagePath) {
-    this.imagePath = imagePath;
+    this.imgPath = imagePath;
   }
-
-  NewCommentPage(this.db, this.postID, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -46,11 +51,11 @@ class NewCommentPage extends StatelessWidget {
                 IconButton(onPressed: () {}, icon: const Icon(Icons.send))
               ]),
             )),
-        if (imagePath != null)
+        if (imgPath != null)
           SizedBox(
             width: 250,
             height: 400,
-            child: Image.file(File(imagePath!)),
+            child: Image.file(File(imgPath!)),
           ),
       ],
     ));

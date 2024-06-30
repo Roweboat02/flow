@@ -2,14 +2,19 @@ import 'package:flow/database_proxy.dart';
 import 'package:flow/person.dart';
 import 'package:flutter/material.dart';
 
-class NewChatPage extends StatelessWidget {
-  DatabaseProxy db;
+class NewChatPage extends StatefulWidget {
+  final DatabaseProxy db;
+  final Person user;
+
+  const NewChatPage(this.db, this.user, {super.key});
+
+  @override
+  State<NewChatPage> createState() => _NewChatPageState();
+}
+
+class _NewChatPageState extends State<NewChatPage> {
   final TextEditingController _searchController = TextEditingController();
-  Person user;
   List<String> users = [];
-
-  NewChatPage(this.db, this.user, {super.key});
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -32,15 +37,17 @@ class NewChatPage extends StatelessWidget {
                   IconButton(
                     icon: const Icon(Icons.add),
                     onPressed: () {
-                      users.add(_searchController.text);
                       _searchController.clear();
+                      setState(() {
+                        users.add(_searchController.text);
+                      });
                     },
                   ),
                   IconButton(
                     icon: const Icon(Icons.send),
                     onPressed: () {
-                      users.add(user.name);
-                      db.makeNewChat(_searchController.text, users);
+                      users.add(widget.user.name);
+                      widget.db.makeNewChat(_searchController.text, users);
                       _searchController.clear();
                       Navigator.pop(context);
                     },
@@ -51,6 +58,7 @@ class NewChatPage extends StatelessWidget {
                 ),
               ),
             )),
+        Text(users.toString()),
         ListView(
           scrollDirection: Axis.vertical,
           shrinkWrap: true,

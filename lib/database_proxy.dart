@@ -55,7 +55,8 @@ class DatabaseProxy {
     return imageRef.getDownloadURL();
   }
 
-  static Future<bool> newUser(String username, String profilePicture) async {
+  static Future<bool> makeNewUser(
+      String username, String profilePicture) async {
     final inst = FirebaseDatabase.instance;
     final DataSnapshot snapshot = await inst.ref("users/$username").get();
     if (snapshot.exists) {
@@ -72,10 +73,16 @@ class DatabaseProxy {
     }
   }
 
-  Future<bool> makePost(String content) async {
+  Future<bool> makeNewPost(String content, String? imagePath) async {
     Position pos = await position;
     String date = DateTime.now().toString();
     String postID = "${user.name}/$content/$date".hashCode.toString();
+    String? url;
+    if (imagePath != null) {
+      final ref = FirebaseStorage.instance.ref("posts/${postID}/picture");
+      await ref.putFile(File(imagePath));
+      url = await ref.getDownloadURL();
+    }
 
     final DataSnapshot snapshot = await fb.ref("posts/$postID").get();
     if (snapshot.exists) {
@@ -88,6 +95,7 @@ class DatabaseProxy {
         "$postID/elevation": pos.altitude,
         "$postID/user": user.name,
         "$postID/profile_picture": user.profile.url,
+        "$postID/picture": url != null ? url : "",
         "$postID/date": date,
         "$postID/reposts": {},
         "$postID/comments/": {}
@@ -99,8 +107,7 @@ class DatabaseProxy {
   Future<bool> makeComment(String postID, String content) async {
     Position pos = await position;
     String date = DateTime.now().toString();
-    String commentID =
-        "${user.name}/$content/$date/postID".hashCode.toString();
+    String commentID = "${user.name}/$content/$date/postID".hashCode.toString();
 
     final DataSnapshot snapshot = await fb.ref("posts/$postID").get();
     if (snapshot.exists) {
@@ -138,7 +145,7 @@ class DatabaseProxy {
     return true;
   }
 
-  newMessage(String chatID, Message message) {
+  makeNewMessage(String chatID, Message message) {
     String date = DateTime.now().toString();
     DatabaseReference snapshot = fb.ref("chat/$chatID");
     DatabaseReference newMessage = snapshot.child("messages").push();
@@ -178,9 +185,8 @@ class DatabaseProxy {
   contentSearch(String excerpt) {}
 
   Future<List<Post>> getComments(String postID) async {
-    Map<String, Map> commentSet =
-        (await fb.ref("posts/$postID/comments").get()).value
-            as Map<String, Map>;
+    Map<String, Map> commentSet = (await fb.ref("posts/$postID/comments").get())
+        .value as Map<String, Map>;
     List<Post> temp = [];
     for (var i in commentSet.keys.toList()) {
       postID = i;
@@ -211,13 +217,21 @@ class DatabaseProxy {
       for (var pstID in psts.keys) {
         String content = psts[pstID]!["content"];
         String username = psts[pstID]!["user"];
-        String url = psts[pstID]!["profile_picture"];
+        String profile_url = psts[pstID]!["profile_picture"];
+        String? url = psts[pstID]!["picture"];
+        url = url == "" ? null : url;
         DateTime date = DateTime.parse(psts[pstID]!["date"]);
         num lat = psts[pstID]!["lat"];
         num long = psts[pstID]!["long"];
         num elevation = psts[pstID]!["elevation"];
-        temp.add(Post(content, pstID, Person(NetworkImage(url), username), lat,
-            long, date, elevation));
+        temp.add(Post(
+            content,
+            pstID,
+            Person(NetworkImage(profile_url), username),
+            lat,
+            long,
+            date,
+            elevation));
       }
       for (var rpstID in rpsts.keys) {
         String content = rpsts[rpstID]!["content"];

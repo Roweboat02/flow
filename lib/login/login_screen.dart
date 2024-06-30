@@ -70,19 +70,9 @@ class _LoginScreenState extends State<LoginScreen> {
             ElevatedButton(
                 child: const Text('Log In'),
                 onPressed: () async {
-                  setState(() {
-                    showSpinner = true;
-                  });
-                  try {
-                    final user = await _auth.signInWithEmailAndPassword(
-                        email: email, password: password);
-                    Navigator.pushNamed(context, 'home_screen');
-                                    } catch (e) {
-                    print(e);
-                  }
-                  setState(() {
-                    showSpinner = false;
-                  });
+                  await _auth.signInWithEmailAndPassword(
+                      email: email, password: password);
+                  Navigator.pushNamed(context, 'home_screen');
                 }),
           ],
         ),
