@@ -1,26 +1,23 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flow/chat/new_chat_page.dart';
 import 'package:flow/database_proxy.dart';
 import 'package:flow/feed_page.dart';
-import 'package:flow/firebase_options.dart';
-import 'package:flow/login/google_sign_in.dart';
+import 'package:flow/login/login_screen.dart';
 import 'package:flow/shed_page.dart';
-import 'package:flow/chat/chats_page.dart';
+import 'package:flow/messages_page.dart';
+import 'package:flow/page.dart';
 import 'package:flow/person.dart';
+import 'package:flow/post.dart';
+import 'package:flow/login/signup_screen.dart';
+import 'package:flow/login/welcome_screen.dart';
 import 'package:flutter/material.dart';
-import 'login/login_screen.dart';
-import 'login/signup_screen.dart';
-import 'login/welcome_screen.dart';
+
+import 'chat/new_chat_page.dart';
 import 'new_post_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-      // options: DefaultFirebaseOptions.currentPlatform,
-      );
-  runApp(const MyApp());
+  await Firebase.initializeApp();
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -36,8 +33,7 @@ class MyApp extends StatelessWidget {
         'welcome_screen': (context) => WelcomeScreen(),
         'registration_screen': (context) => RegistrationScreen(),
         'login_screen': (context) => LoginScreen(),
-        'home_screen': (context) => NavigationExample(title: 'Neighbor'),
-        'google_login_screen': (context) => GoogleSignInScreen()
+        'home_screen': (context) => NavigationExample(title: 'Neighbor')
         //https://medium.com/code-for-cause/flutter-registration-login-using-firebase-5ada3f14c066
       },
       theme: ThemeData(
@@ -58,37 +54,31 @@ class NavigationExample extends StatefulWidget {
 }
 
 class _NavigationExampleState extends State<NavigationExample> {
-  late FirebaseMessaging messaging;
-
-  late DatabaseProxy db;
-  late List pages;
-  late Person user;
+  DatabaseProxy db = DatabaseProxy("Me");
+  late List<MyPage> pages;
   int currentPageIndex = 0;
 
   @override
-  Future<void> initState() async {
-    user = Person(await DatabaseProxy.getUserImage(),
-        FirebaseAuth.instance.currentUser!.uid);
-    db = DatabaseProxy(user);
-
-    pages = [Shed(db, user), Feed(db, user), ChatsPage(db, user)];
+  void initState() {
+    pages = [Shed(db), Feed(db), Messages(db)];
     super.initState();
-    messaging = FirebaseMessaging.instance;
-    messaging.getToken().then((value) {
-      print(value);
-    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: currentPageIndex != 2
-            ? () => Navigator.push(context,
-                MaterialPageRoute(builder: (context) => NewPostPage(db)))
-            : () => Navigator.push(context,
-                MaterialPageRoute(builder: (context) => NewChatPage(db, user))),
+            ? () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => NewPostPage(db).page(context)))
+            : () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => NewChatPage(db).page(context))),
       ),
       bottomNavigationBar: NavigationBar(
           onDestinationSelected: (int index) {
@@ -97,8 +87,7 @@ class _NavigationExampleState extends State<NavigationExample> {
             });
           },
           selectedIndex: currentPageIndex,
-          destinations:
-              pages.map((page) => page.destination()).toList() as List<Widget>),
+          destinations: pages.map((page) => page.destination()).toList()),
       body: pages.map((page) => page.page(context)).toList()[currentPageIndex],
     );
   }
