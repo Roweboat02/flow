@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flow/chat/chats_page.dart';
 import 'package:flow/database_proxy.dart';
 import 'package:flow/feed_page.dart';
 import 'package:flow/login/login_screen.dart';
+import 'package:flow/login/new_user.dart';
 import 'package:flow/shed_page.dart';
 import 'package:flow/person.dart';
 import 'package:flow/login/signup_screen.dart';
@@ -32,7 +35,8 @@ class MyApp extends StatelessWidget {
         'welcome_screen': (context) => WelcomeScreen(),
         'registration_screen': (context) => RegistrationScreen(),
         'login_screen': (context) => LoginScreen(),
-        'home_screen': (context) => NavigationExample(title: 'Neighbor')
+        'home_screen': (context) => NavigationExample(title: 'Neighbor'),
+        'new_user_screen': (context) => NewUserScreen()
         //https://medium.com/code-for-cause/flutter-registration-login-using-firebase-5ada3f14c066
       },
       theme: ThemeData(
@@ -59,9 +63,10 @@ class _NavigationExampleState extends State<NavigationExample> {
   int currentPageIndex = 0;
 
   @override
-  Future<void> initState() async {
-    user = Person(await DatabaseProxy.getUserImage(),
+  void initState() {
+    user = Person(Image.file(File('assets/images/default_profile.png')),
         FirebaseAuth.instance.currentUser!.uid);
+    user.setProfilePicture(DatabaseProxy.getUserImage());
     db = DatabaseProxy(user);
     pages = [Shed(db, user), Feed(db, user), ChatsPage(db, user)];
     super.initState();
@@ -85,8 +90,22 @@ class _NavigationExampleState extends State<NavigationExample> {
             });
           },
           selectedIndex: currentPageIndex,
-          destinations:
-              pages.map((page) => page.destination()).toList() as List<Widget>),
+          destinations: [
+            const NavigationDestination(
+              selectedIcon: Icon(Icons.home),
+              icon: Icon(Icons.home_outlined),
+              label: 'Shed',
+            ),
+            const NavigationDestination(
+              selectedIcon: Icon(Icons.view_list),
+              icon: Icon(Icons.view_list),
+              label: 'Feed',
+            ),
+            const NavigationDestination(
+              icon: Icon(Icons.messenger_sharp),
+              label: 'Messages',
+            )
+          ]),
       body: pages.map((page) => page.page(context)).toList()[currentPageIndex],
     );
   }

@@ -72,8 +72,24 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 try {
                   await _auth.createUserWithEmailAndPassword(
                       email: email, password: password);
+                } on FirebaseAuthException catch (e) {
+                  if (e.code == "email-already-in-use") {
+                    setState(() {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text("Email already in use"),
+                        duration: const Duration(seconds: 1),
+                      ));
+                    });
+                  } else if (e.code == "weak-password") {
+                    setState(() {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text("Password Too Weak"),
+                        duration: const Duration(seconds: 1),
+                      ));
+                    });
+                  }
                 } finally {
-                  Navigator.pushNamed(context, 'home_screen');
+                  Navigator.pushNamed(context, 'new_user_screen');
                 }
               },
             )

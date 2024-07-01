@@ -49,7 +49,7 @@ class Post {
                         child: Column(
                           children: [
                             CircleAvatar(
-                              backgroundImage: poster.profile,
+                              backgroundImage: poster.profile.image,
                               radius: 30.0,
                             ),
                             Text(poster.name, textAlign: TextAlign.left),

@@ -37,7 +37,7 @@ class Shed {
                     builder: ((context, snapshot) {
                       if (snapshot.hasData) {
                         return CircleAvatar(
-                          backgroundImage: snapshot.data,
+                          backgroundImage: snapshot.data!.image,
                           radius: 50,
                         );
                       } else {
