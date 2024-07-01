@@ -1,3 +1,4 @@
+import 'package:flow/login/new_user.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -70,26 +71,30 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               child: const Text('Register'),
               onPressed: () async {
                 try {
-                  await _auth.createUserWithEmailAndPassword(
+                  final user = await _auth.createUserWithEmailAndPassword(
                       email: email, password: password);
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => NewUserPage(user)));
                 } on FirebaseAuthException catch (e) {
                   if (e.code == "email-already-in-use") {
-                    setState(() {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text("Email already in use"),
-                        duration: const Duration(seconds: 1),
-                      ));
-                    });
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: const Text("email-already-in-use"),
+                      duration: const Duration(seconds: 1),
+                      action: SnackBarAction(
+                        label: 'ACTION',
+                        onPressed: () {},
+                      ),
+                    ));
                   } else if (e.code == "weak-password") {
-                    setState(() {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text("Password Too Weak"),
-                        duration: const Duration(seconds: 1),
-                      ));
-                    });
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: const Text("weak-password"),
+                      duration: const Duration(seconds: 1),
+                      action: SnackBarAction(
+                        label: 'ACTION',
+                        onPressed: () {},
+                      ),
+                    ));
                   }
-                } finally {
-                  Navigator.pushNamed(context, 'new_user_screen');
                 }
               },
             )
