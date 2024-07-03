@@ -15,7 +15,7 @@ class _CameraPageState extends State<CameraPage> {
   late Future<void> _initializeControllerFuture;
   late final CameraDescription camera;
   @override
-  Future<void> initState() async {
+  void initState() {
     super.initState();
     // To display the current output from the Camera,
     // create a CameraController.

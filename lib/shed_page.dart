@@ -33,7 +33,7 @@ class Shed {
                             image: db.getShedBackground(),
                             fit: BoxFit.fitWidth))),
                 FutureBuilder(
-                    future: DatabaseProxy.getUserImage(),
+                    future: DatabaseProxy.getProfilePictureURL(),
                     builder: ((context, snapshot) {
                       if (snapshot.hasData) {
                         return CircleAvatar(

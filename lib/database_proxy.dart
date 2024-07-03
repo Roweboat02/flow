@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -17,15 +18,24 @@ class DatabaseProxy {
 
   DatabaseProxy(this.user);
 
-  final fb = FirebaseDatabase.instance;
+  final db = FirebaseFirestore.instance;
   // https://medium.com/firebase-tips-tricks/how-to-use-firebase-realtime-database-with-flutter-ebd98aba2c91
   final auth = FirebaseAuth.instance;
 
-  static Future<Image> getUserImage() async {
-    final String url = await FirebaseDatabase.instance
-        .ref("users/${FirebaseAuth.instance.currentUser!.uid}/profile_picture")
-        .get() as String;
-    return Image.network(url);
+  static Future<bool> userExists(String username) async {
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection("users")
+        .doc("$username")
+        .get();
+    if (snapshot.exists) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  static Future<Image> getProfilePictureURL() async {
+    return Image.network(FirebaseAuth.instance.currentUser!.photoURL!);
   }
 
   static Future<Position> get position async {
@@ -55,25 +65,24 @@ class DatabaseProxy {
     return imageRef.getDownloadURL();
   }
 
-  static Future<bool> makeNewUser(
-      String username, String profilePicture) async {
-    final inst = FirebaseDatabase.instance;
-    final DataSnapshot snapshot = await inst.ref("users/$username").get();
-    if (snapshot.exists) {
-      return false;
-    } else {
-      inst.ref("users").update({
-        "$username/chats": [],
-        "$username/posts": {},
-        "$username/reposts": {},
-        "$username/friends": {},
-        "$username/profile_picture": profilePicture,
-      });
-      return true;
-    }
+  static Future makeNewUser() async {
+    // Expects display name to be set
+    final inst = FirebaseFirestore.instance;
+    final snapshot = inst
+        .collection("users")
+        .doc("${FirebaseAuth.instance.currentUser!.uid}");
+    snapshot.update({
+      "username": FirebaseAuth.instance.currentUser!.displayName!,
+      "chats": [],
+      "posts": {},
+      "reposts": {},
+      "friends": {},
+      "profile_picture": getProfilePictureURL(),
+    });
+    return true;
   }
 
-  Future<bool> makeNewPost(String content, String? imagePath) async {
+  Future makeNewPost(String content, String? imagePath) async {
     Position pos = await position;
     String date = DateTime.now().toString();
     String postID = "${user.name}/$content/$date".hashCode.toString();
@@ -84,140 +93,120 @@ class DatabaseProxy {
       url = await ref.getDownloadURL();
     }
 
-    final DataSnapshot snapshot = await fb.ref("posts/$postID").get();
-    if (snapshot.exists) {
-      return false;
-    } else {
-      fb.ref("posts").update({
-        "$postID/content": content,
-        "$postID/lat": pos.latitude,
-        "$postID/long": pos.longitude,
-        "$postID/elevation": pos.altitude,
-        "$postID/user": user.name,
-        "$postID/profile_picture": Image.network(await fb
-            .ref(
-                "users/${FirebaseAuth.instance.currentUser!.uid}/profile_picture")
-            .get() as String),
-        "$postID/picture": url != null ? url : "",
-        "$postID/date": date,
-        "$postID/reposts": {},
-        "$postID/comments/": {}
-      });
-      return true;
-    }
+    final snapshot = await db.collection("posts").doc("$postID");
+    final ref = db.collection("posts").doc("$postID");
+    ref.update({
+      "content": content,
+      "lat": pos.latitude,
+      "long": pos.longitude,
+      "elevation": pos.altitude,
+      "user": user.name,
+      "profile_picture": getProfilePictureURL(),
+      "picture": url != null ? url : "",
+      "date": date,
+      "reposts": {},
+      "comments": {}
+    });
   }
 
-  Future<bool> makeComment(String postID, String content) async {
+  Future makeComment(String postID, String content) async {
     Position pos = await position;
     String date = DateTime.now().toString();
-    String commentID = "${user.name}/$content/$date/postID".hashCode.toString();
+    String commentID =
+        "${user.name}/$content/$date/$postID".hashCode.toString();
 
-    final DataSnapshot snapshot = await fb.ref("posts/$postID").get();
-    if (snapshot.exists) {
-      return false;
-    } else {
-      fb.ref("posts/$postID/comments/$commentID").update({
-        "content": content,
-        "lat": pos.latitude,
-        "long": pos.longitude,
-        "elevation": pos.altitude,
-        "user": user.name,
-        "profile_picture": Image.network(await fb
-            .ref(
-                "users/${FirebaseAuth.instance.currentUser!.uid}/profile_picture")
-            .get() as String),
-        "date": date,
-        "reposts": {},
-      });
-      return true;
-    }
+    final snapshot = await db
+        .collection("posts")
+        .doc("$postID")
+        .collection("comments")
+        .doc("$commentID");
+    snapshot.update({
+      "content": content,
+      "lat": pos.latitude,
+      "long": pos.longitude,
+      "elevation": pos.altitude,
+      "user": user.name,
+      "profile_picture": getProfilePictureURL(),
+      "date": date,
+      "reposts": {},
+    });
   }
 
-  Future<bool> makeNewChat(String name, List<String> users) async {
+  Future makeNewChat(String name, List<String> users) async {
     String date = DateTime.now().toString();
     String chatID = "$users/$name/$date".hashCode.toString();
 
-    fb.ref("chats").update({
-      "$chatID/name": name,
-      "$chatID/profile_picture": Image.network(await fb
-          .ref(
-              "users/${FirebaseAuth.instance.currentUser!.uid}/profile_picture")
-          .get() as String),
-      "$chatID/date": date,
-      "$chatID/messages": {}
+    final ref = db.collection("chats").doc("$chatID");
+    ref.update({
+      "name": name,
+      "profile_picture": getProfilePictureURL(),
+      "date": date,
+      "messages": {}
     });
 
     for (String user in users) {
-      DatabaseReference ref = fb.ref("users/$user/chats").push();
-      ref.set(chatID);
+      final ref = db.collection("users").doc("$user");
+      ref.set({"chats.$chatID": {}});
     }
-    return true;
   }
 
   makeNewMessage(String chatID, Message message) async {
     String date = DateTime.now().toString();
-    DatabaseReference snapshot = fb.ref("chat/$chatID");
-    DatabaseReference newMessage = snapshot.child("messages").push();
+    final snapshot = db.collection("chat").doc("$chatID");
 
-    newMessage.update({
-      "date": date,
-      "user": message.user.name,
-      "profile_picture": Image.network(await fb
-          .ref(
-              "users/${FirebaseAuth.instance.currentUser!.uid}/profile_picture")
-          .get() as String),
-      "content": message.content,
+    snapshot.update({
+      "messages.date": date,
+      "messages.user": message.user.name,
+      "messages.profile_picture": getProfilePictureURL(),
+      "messages.content": message.content,
     });
   }
 
   repost(String postID) async {
-    DatabaseReference repostList = fb.ref("posts/$postID/reposts");
-    DatabaseReference newRepostList = repostList.push();
+    final repostList = db
+        .collection("posts")
+        .doc("$postID")
+        .collection("reposts")
+        .doc("$postID");
 
     Position pos = await position;
-    newRepostList.set({
-      "/$postID/lat": pos.latitude,
-      "/$postID/long": pos.longitude,
-      "/$postID/elevation": pos.altitude,
-      "/$postID/user": user.name,
-      "/comments": {} // {postID: {post}}
+    repostList.set({
+      "lat": pos.latitude,
+      "long": pos.longitude,
+      "elevation": pos.altitude,
+      "user": user.name,
+      "comments": {} // {postID: {post}}
     });
   }
 
-  Future<bool> userExists(String username) async {
-    final DataSnapshot snapshot = await fb.ref("users/$username").get();
-    if (snapshot.exists) {
-      return true;
-    } else {
-      return false;
-    }
+  Future<bool> contactSearch(String username) async {
+    final ref = db.collection("users");
+    final query = await ref.where("username", isEqualTo: username).get();
+    return query.size > 0;
   }
 
-  contactSearch(String username) async {
-    final DataSnapshot snapshot = await fb.ref("users/$username").get();
-    if (snapshot.exists) {
-      String url = snapshot.child("profile_picture").value as String;
-      return Person(Image.network(url), username);
-    } else {
-      return null;
-    }
+  contentSearch(String excerpt) async {
+    final ref = db.collection("posts");
+    final query =
+        await ref.where("content", isGreaterThanOrEqualTo: excerpt).get();
+    return query.docs;
   }
-
-  contentSearch(String excerpt) {}
 
   Future<List<Post>> getComments(String postID) async {
-    Map<String, Map> commentSet = (await fb.ref("posts/$postID/comments").get())
-        .value as Map<String, Map>;
+    Map<String, dynamic> postCollection =
+        (await db.collection("posts").doc("$postID").get()).data()!;
+
+    Map<String, dynamic> commentMap = postCollection["comments"];
     List<Post> temp = [];
-    for (var i in commentSet.keys.toList()) {
+    for (var i in commentMap.keys.toList()) {
       postID = i;
-      String content = commentSet[postID]!["content"];
-      String username = commentSet[postID]!["user"];
-      String url = commentSet[postID]!["profile_picture"];
-      String date = commentSet[postID]!["date"];
-      num lat = commentSet[postID]!["lat"];
-      num long = commentSet[postID]!["long"];
-      num elevation = commentSet[postID]!["elevation"];
+      String content = commentMap[i]["content"];
+      String username = commentMap[i]["user"];
+      String url = commentMap[i]["profile_picture"];
+      String date = commentMap[i]["date"];
+      num lat = commentMap[i]["lat"];
+      num long = commentMap[i]["long"];
+      num elevation = commentMap[i]["elevation"];
       temp.add(Post(content, postID, Person(Image.network(url), username), lat,
           long, DateTime.parse(date), elevation));
     }
@@ -225,29 +214,32 @@ class DatabaseProxy {
   }
 
   Future<List<Post>> getShed() async {
-    List<String> friends = (await fb
-        .ref("users/${auth.currentUser!.uid}/friends")
-        .get()) as List<String>;
+    final ref =
+        await db.collection("users").doc("${auth.currentUser!.uid}").get();
+    Map<String, dynamic> user = ref.data()!;
+    final friends = user["friends"] as List<String>;
+
     List<Post> temp = [];
     for (String friend in friends) {
-      Map<String, Map> psts =
-          await fb.ref("users/$friend/posts").get() as Map<String, Map>;
-      Map<String, Map> rpsts =
-          await fb.ref("users/$friend/reposts").get() as Map<String, Map>;
+      final postSnapshot =
+          await db.collection("users").doc(friend).collection("posts").get();
+      final repostSnapshot =
+          await db.collection("users").doc(friend).collection("reposts").get();
 
-      for (var pstID in psts.keys) {
-        String content = psts[pstID]!["content"];
-        String username = psts[pstID]!["user"];
-        String profile_url = psts[pstID]!["profile_picture"];
-        String? url = psts[pstID]!["picture"];
-        NetworkImage? img = url == "" ? null : NetworkImage(url!);
-        DateTime date = DateTime.parse(psts[pstID]!["date"]);
-        num lat = psts[pstID]!["lat"];
-        num long = psts[pstID]!["long"];
-        num elevation = psts[pstID]!["elevation"];
+      for (var docSnapshot in postSnapshot.docs) {
+        Map<String, dynamic> posts = docSnapshot.data();
+        String content = posts["content"];
+        String username = posts["user"];
+        String profile_url = posts["profile_picture"];
+        String? url = posts["picture"];
+        NetworkImage? img = (url == "" ? null : NetworkImage(url!));
+        DateTime date = DateTime.parse(posts["date"]);
+        num lat = posts["lat"];
+        num long = posts["long"];
+        num elevation = posts["elevation"];
         Post post = Post(
             content,
-            pstID,
+            docSnapshot.id,
             Person(Image.network(profile_url), username),
             lat,
             long,
@@ -256,36 +248,38 @@ class DatabaseProxy {
         post.addImage(img);
         temp.add(post);
       }
-      for (var rpstID in rpsts.keys) {
-        String content = rpsts[rpstID]!["content"];
-        String username = rpsts[rpstID]!["user"];
-        String url = rpsts[rpstID]!["profile_picture"];
-        DateTime date = DateTime.parse(rpsts[rpstID]!["date"]);
-        num lat = rpsts[rpstID]!["lat"];
-        num long = rpsts[rpstID]!["long"];
-        num elevation = rpsts[rpstID]!["elevation"];
-        temp.add(Post(content, rpstID, Person(Image.network(url), username),
-            lat, long, date, elevation));
+      for (var docSnapshot in repostSnapshot.docs) {
+        Map<String, dynamic> reposts = docSnapshot.data();
+        String content = reposts["content"];
+        String username = reposts["user"];
+        String url = reposts["profile_picture"];
+        DateTime date = DateTime.parse(reposts["date"]);
+        num lat = reposts["lat"];
+        num long = reposts["long"];
+        num elevation = reposts["elevation"];
+        temp.add(Post(content, docSnapshot.id,
+            Person(Image.network(url), username), lat, long, date, elevation));
       }
     }
     return temp;
   }
 
   Future<List<Post>> getFeed() async {
-    Map<String, Map> prePosts =
-        (await fb.ref("posts").get()) as Map<String, Map>;
+    final postCollection = await db.collection("posts").get();
     List<Post> temp = [];
     Position pos = await position;
 
-    for (var pstID in prePosts.keys) {
-      String content = prePosts[pstID]!["content"];
-      String username = prePosts[pstID]!["user"];
-      String url = prePosts[pstID]!["profile_picture"];
-      DateTime date = DateTime.parse(prePosts[pstID]!["date"]);
-      num elevation = prePosts[pstID]!["elevation"];
-      List<num> lats = prePosts[pstID]!["lat"];
-      List<num> longs = prePosts[pstID]!["long"];
-      Map<String, Map> reposts = prePosts[pstID]!["reposts"];
+    for (var docSnapshot in postCollection.docs) {
+      Map<String, dynamic> posts = docSnapshot.data();
+      String content = posts["content"];
+      String username = posts["user"];
+      String url = posts["profile_picture"];
+      DateTime date = DateTime.parse(posts["date"]);
+      num elevation = posts["elevation"];
+      List<num> lats = posts["lat"];
+      List<num> longs = posts["long"];
+
+      Map<String, Map> reposts = posts["reposts"];
       for (String repostID in reposts.keys) {
         lats.add(reposts[repostID]!["lat"]);
         longs.add(reposts[repostID]!["long"]);
@@ -294,36 +288,35 @@ class DatabaseProxy {
           pos.latitude, pos.longitude, lats, longs);
 
       int loc = distances.firstWhere((e) => e == distances.reduce(min)) as int;
-      temp.add(Post(content, pstID, Person(Image.network(url), username),
-          lats[loc], longs[loc], date, elevation));
+      temp.add(Post(
+          content,
+          docSnapshot.id,
+          Person(Image.network(url), username),
+          lats[loc],
+          longs[loc],
+          date,
+          elevation));
     }
 
     return await RelativityGod().sort(temp);
   }
 
   Future<List<Chat>> getChats() async {
-    List<String> chatIDs =
-        await fb.ref("users/${user.name}/chats").get() as List<String>;
+    final snapshot = await db
+        .collection("users")
+        .doc(auth.currentUser!.uid!)
+        .collection("chats")
+        .get();
+
     List<Chat> temp = [];
-    for (String chatID in chatIDs) {
-      Map chat = fb.ref("chats/$chatID").get() as Map;
+    for (var docSnapshot in snapshot.docs) {
       List<Message> messages = [];
-      for (Map message in chat["messages"]) {
+      for (Map message in docSnapshot["messages"]) {
         messages.add(Message(
             message["content"], Person(message["picture"], message["user"])));
       }
-      temp.add(Chat(messages, chat["name"], chat["users"], chatID,
-          NetworkImage(chat["picture"])));
-    }
-    return temp;
-  }
-
-  Future<List<Message>> getMessages(String chatID) async {
-    List<Map> messages =
-        await fb.ref("chats/$chatID/messages").get() as List<Map>;
-    List<Message> temp = [];
-    for (var message in messages) {
-      temp.add(Message(message["content"], message["user"]));
+      temp.add(Chat(messages, docSnapshot["name"], docSnapshot["users"],
+          docSnapshot.id, NetworkImage(docSnapshot["picture"])));
     }
     return temp;
   }

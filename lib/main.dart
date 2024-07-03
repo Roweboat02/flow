@@ -36,7 +36,6 @@ class MyApp extends StatelessWidget {
         'registration_screen': (context) => RegistrationScreen(),
         'login_screen': (context) => LoginScreen(),
         'home_screen': (context) => NavigationExample(title: 'Neighbor'),
-        'new_user_screen': (context) => NewUserScreen()
         //https://medium.com/code-for-cause/flutter-registration-login-using-firebase-5ada3f14c066
       },
       theme: ThemeData(
@@ -65,8 +64,8 @@ class _NavigationExampleState extends State<NavigationExample> {
   @override
   void initState() {
     user = Person(Image.file(File('assets/images/default_profile.png')),
-        FirebaseAuth.instance.currentUser!.uid);
-    user.setProfilePicture(DatabaseProxy.getUserImage());
+        FirebaseAuth.instance.currentUser!.displayName!);
+    user.setProfilePicture(DatabaseProxy.getProfilePictureURL());
     db = DatabaseProxy(user);
     pages = [Shed(db, user), Feed(db, user), ChatsPage(db, user)];
     super.initState();

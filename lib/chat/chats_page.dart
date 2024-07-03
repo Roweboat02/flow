@@ -31,7 +31,7 @@ class ChatsPage {
               context,
               MaterialPageRoute(
                   builder: (context) =>
-                      MessagesPage(db, e.chatID, user).page(context)));
+                      MessagesPage(db, e, user).page(context)));
         },
       ));
     }
