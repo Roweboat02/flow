@@ -47,6 +47,7 @@ dependencies:
   geolocator: ^9.0.0
   firebase_storage: ^11.6.0
   camera: ^0.10.5+3
+  image_picker: 
 
 dev_dependencies:
   flutter_test:

@@ -30,6 +30,7 @@ class RegistrationScreen extends StatefulWidget {
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
   final _auth = FirebaseAuth.instance;
+  late String username;
   late String email;
   late String password;
 
@@ -43,6 +44,18 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
+            TextField(
+                keyboardType: TextInputType.name,
+                textAlign: TextAlign.center,
+                onChanged: (value) {
+                  username = value;
+                  //Do something with the user input.
+                },
+                decoration: kTextFieldDecoration.copyWith(
+                    hintText: 'Enter your username')),
+            const SizedBox(
+              height: 8.0,
+            ),
             TextField(
                 keyboardType: TextInputType.emailAddress,
                 textAlign: TextAlign.center,
@@ -73,6 +86,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 try {
                   final user = await _auth.createUserWithEmailAndPassword(
                       email: email, password: password);
+
+                  user.user!.updateDisplayName(username);
+
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => NewUserPage(user)));
                 } on FirebaseAuthException catch (e) {

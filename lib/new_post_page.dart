@@ -1,9 +1,8 @@
 import 'dart:io';
 
 import 'package:flow/database_proxy.dart';
+import 'package:flow/images/camera_or_gallery_dialog.dart';
 import 'package:flutter/material.dart';
-
-import 'camera_page.dart';
 
 class NewPostPage extends StatefulWidget {
   final DatabaseProxy db;
@@ -18,7 +17,7 @@ class _NewPostPageState extends State<NewPostPage> {
   TextEditingController controller = TextEditingController();
 
   setImagePath(String imagePath) {
-    this.imgPath = imagePath;
+    imgPath = imagePath;
   }
 
   @override
@@ -39,18 +38,12 @@ class _NewPostPageState extends State<NewPostPage> {
               ),
               // Add a search icon or button to the search bar
               prefixIcon: Row(children: [
+                CameraOrGalleryMenu(setImagePath),
                 IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: ((context) => CameraPage(
-                                  setImagePath,
-                                ))));
-                  },
-                ),
-                IconButton(onPressed: () {}, icon: const Icon(Icons.send))
+                    onPressed: () {
+                      widget.db.makeNewPost(controller.text, imgPath);
+                    },
+                    icon: const Icon(Icons.send))
               ]),
             )),
         if (imgPath != null)

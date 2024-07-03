@@ -12,24 +12,39 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SizedBox(
-        width: 500,
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              ElevatedButton(
-                child: const Text('Log In'),
-                onPressed: () {
-                  Navigator.pushNamed(context, 'login_screen');
-                },
-              ),
-              ElevatedButton(
-                  child: const Text('Sign up'),
-                  onPressed: () {
-                    Navigator.pushNamed(context, 'registration_screen');
-                  }),
-            ]),
+      body: Center(
+        child: SizedBox(
+          width: 500,
+          height: 200,
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                  child: ElevatedButton(
+                    child: const Text(
+                      'Log In',
+                      style: TextStyle(fontSize: 15),
+                    ),
+                    onPressed: () {
+                      Navigator.pushNamed(context, 'login_screen');
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                  child: ElevatedButton(
+                      child: const Text(
+                        'Sign up',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                      onPressed: () {
+                        Navigator.pushNamed(context, 'registration_screen');
+                      }),
+                ),
+              ]),
+        ),
       ),
     );
   }

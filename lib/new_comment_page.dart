@@ -1,7 +1,6 @@
 import 'dart:io';
-
-import 'package:flow/camera_page.dart';
 import 'package:flow/database_proxy.dart';
+import 'package:flow/images/camera_or_gallery_dialog.dart';
 import 'package:flutter/material.dart';
 
 class NewCommentPage extends StatefulWidget {
@@ -38,15 +37,7 @@ class _NewCommentPageState extends State<NewCommentPage> {
               ),
               // Add a search icon or button to the search bar
               prefixIcon: Row(children: [
-                IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: ((context) => CameraPage(setImagePath))));
-                  },
-                ),
+                CameraOrGalleryMenu(setImagePath),
                 IconButton(onPressed: () {}, icon: const Icon(Icons.send))
               ]),
             )),

@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flow/chat/chat.dart';
 import 'package:flow/person.dart';
@@ -25,7 +24,7 @@ class DatabaseProxy {
   static Future<bool> userExists(String username) async {
     DocumentSnapshot snapshot = await FirebaseFirestore.instance
         .collection("users")
-        .doc("$username")
+        .doc(username)
         .get();
     if (snapshot.exists) {
       return true;
@@ -58,19 +57,20 @@ class DatabaseProxy {
   }
 
   static Future<String> uploadProfilePicture(String fileName) async {
-    Reference reference = FirebaseStorage.instance
-        .ref("users/${FirebaseAuth.instance.currentUser!.uid}");
-    Reference imageRef = reference.child(fileName);
-    await reference.putFile(File(fileName));
+    Reference reference = FirebaseStorage.instance.ref();
+    final ref = reference.child("users");
+    final userRef = ref.child("${FirebaseAuth.instance.currentUser!.uid}");
+    final imageRef = userRef.child("profile_picture.png");
+
+    await imageRef.putFile(File(fileName));
     return imageRef.getDownloadURL();
   }
 
   static Future makeNewUser() async {
     // Expects display name to be set
     final inst = FirebaseFirestore.instance;
-    final snapshot = inst
-        .collection("users")
-        .doc("${FirebaseAuth.instance.currentUser!.uid}");
+    final snapshot =
+        inst.collection("users").doc(FirebaseAuth.instance.currentUser!.uid);
     snapshot.update({
       "username": FirebaseAuth.instance.currentUser!.displayName!,
       "chats": [],
@@ -88,13 +88,13 @@ class DatabaseProxy {
     String postID = "${user.name}/$content/$date".hashCode.toString();
     String? url;
     if (imagePath != null) {
-      final ref = FirebaseStorage.instance.ref("posts/${postID}/picture");
+      final ref = FirebaseStorage.instance.ref("posts/$postID/picture");
       await ref.putFile(File(imagePath));
       url = await ref.getDownloadURL();
     }
 
-    final snapshot = await db.collection("posts").doc("$postID");
-    final ref = db.collection("posts").doc("$postID");
+    final snapshot = db.collection("posts").doc(postID);
+    final ref = db.collection("posts").doc(postID);
     ref.update({
       "content": content,
       "lat": pos.latitude,
@@ -102,7 +102,7 @@ class DatabaseProxy {
       "elevation": pos.altitude,
       "user": user.name,
       "profile_picture": getProfilePictureURL(),
-      "picture": url != null ? url : "",
+      "picture": url ?? "",
       "date": date,
       "reposts": {},
       "comments": {}
@@ -115,11 +115,11 @@ class DatabaseProxy {
     String commentID =
         "${user.name}/$content/$date/$postID".hashCode.toString();
 
-    final snapshot = await db
+    final snapshot = db
         .collection("posts")
-        .doc("$postID")
+        .doc(postID)
         .collection("comments")
-        .doc("$commentID");
+        .doc(commentID);
     snapshot.update({
       "content": content,
       "lat": pos.latitude,
@@ -136,7 +136,7 @@ class DatabaseProxy {
     String date = DateTime.now().toString();
     String chatID = "$users/$name/$date".hashCode.toString();
 
-    final ref = db.collection("chats").doc("$chatID");
+    final ref = db.collection("chats").doc(chatID);
     ref.update({
       "name": name,
       "profile_picture": getProfilePictureURL(),
@@ -145,14 +145,14 @@ class DatabaseProxy {
     });
 
     for (String user in users) {
-      final ref = db.collection("users").doc("$user");
+      final ref = db.collection("users").doc(user);
       ref.set({"chats.$chatID": {}});
     }
   }
 
   makeNewMessage(String chatID, Message message) async {
     String date = DateTime.now().toString();
-    final snapshot = db.collection("chat").doc("$chatID");
+    final snapshot = db.collection("chat").doc(chatID);
 
     snapshot.update({
       "messages.date": date,
@@ -163,11 +163,8 @@ class DatabaseProxy {
   }
 
   repost(String postID) async {
-    final repostList = db
-        .collection("posts")
-        .doc("$postID")
-        .collection("reposts")
-        .doc("$postID");
+    final repostList =
+        db.collection("posts").doc(postID).collection("reposts").doc(postID);
 
     Position pos = await position;
     repostList.set({
@@ -194,7 +191,7 @@ class DatabaseProxy {
 
   Future<List<Post>> getComments(String postID) async {
     Map<String, dynamic> postCollection =
-        (await db.collection("posts").doc("$postID").get()).data()!;
+        (await db.collection("posts").doc(postID).get()).data()!;
 
     Map<String, dynamic> commentMap = postCollection["comments"];
     List<Post> temp = [];
@@ -214,8 +211,7 @@ class DatabaseProxy {
   }
 
   Future<List<Post>> getShed() async {
-    final ref =
-        await db.collection("users").doc("${auth.currentUser!.uid}").get();
+    final ref = await db.collection("users").doc(auth.currentUser!.uid).get();
     Map<String, dynamic> user = ref.data()!;
     final friends = user["friends"] as List<String>;
 
@@ -230,7 +226,7 @@ class DatabaseProxy {
         Map<String, dynamic> posts = docSnapshot.data();
         String content = posts["content"];
         String username = posts["user"];
-        String profile_url = posts["profile_picture"];
+        String profileUrl = posts["profile_picture"];
         String? url = posts["picture"];
         NetworkImage? img = (url == "" ? null : NetworkImage(url!));
         DateTime date = DateTime.parse(posts["date"]);
@@ -240,7 +236,7 @@ class DatabaseProxy {
         Post post = Post(
             content,
             docSnapshot.id,
-            Person(Image.network(profile_url), username),
+            Person(Image.network(profileUrl), username),
             lat,
             long,
             date,
@@ -304,7 +300,7 @@ class DatabaseProxy {
   Future<List<Chat>> getChats() async {
     final snapshot = await db
         .collection("users")
-        .doc(auth.currentUser!.uid!)
+        .doc(auth.currentUser!.uid)
         .collection("chats")
         .get();
 

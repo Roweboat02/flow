@@ -6,7 +6,6 @@ import 'package:flow/chat/chats_page.dart';
 import 'package:flow/database_proxy.dart';
 import 'package:flow/feed_page.dart';
 import 'package:flow/login/login_screen.dart';
-import 'package:flow/login/new_user.dart';
 import 'package:flow/shed_page.dart';
 import 'package:flow/person.dart';
 import 'package:flow/login/signup_screen.dart';

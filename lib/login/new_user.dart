@@ -1,10 +1,9 @@
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flow/camera_page.dart';
 import 'package:flow/database_proxy.dart';
+import 'package:flow/images/camera_or_gallery_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class NewUserPage extends StatefulWidget {
   final UserCredential user;
@@ -15,11 +14,11 @@ class NewUserPage extends StatefulWidget {
 }
 
 class _NewUserPageState extends State<NewUserPage> {
-  TextEditingController controller = TextEditingController();
   String? imagePath;
 
   setImgPath(String imagePath) {
     this.imagePath = imagePath;
+    setState(() {});
   }
 
   @override
@@ -30,57 +29,35 @@ class _NewUserPageState extends State<NewUserPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              CameraOrGalleryMenu(setImgPath),
               Padding(
-                padding: const EdgeInsets.all(32.0),
-                child: TextField(
-                  decoration: const InputDecoration(
-                    hintText: "Display Name",
-                  ),
-                  controller: controller,
-                ),
-              ),
-              TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: ((context) => CameraPage(
-                                  setImgPath,
-                                ))));
-                  },
-                  child: Text("Upload Profile Picture")),
-              Padding(
-                padding: EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: CircleAvatar(
+                  radius: 50,
                   child: imagePath == null
                       ? Image.asset("assets/images/default_profile.png")
                       : Image.file(File(imagePath!)),
                 ),
               ),
               Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16.0),
                 child: IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: () async {
-                    if (await DatabaseProxy.userExists(controller.text)) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: const Text("username-already-in-use"),
-                          duration: const Duration(seconds: 1),
-                          action: SnackBarAction(
-                            label: 'ACTION',
-                            onPressed: () {},
-                          )));
-                    } else {
-                      widget.user.user!.updateDisplayName(controller.text);
-                      widget.user.user!.updatePhotoURL(
-                          await DatabaseProxy.uploadProfilePicture(imagePath!));
-
-                      DatabaseProxy.makeNewUser();
-
-                      Navigator.pushNamed(context, "home_screen");
-                    }
-                  },
-                ),
+                    icon: const Icon(Icons.send),
+                    onPressed: () async {
+                      if (imagePath != null) {
+                        await DatabaseProxy.uploadProfilePicture(imagePath!);
+                        DatabaseProxy.makeNewUser();
+                        Navigator.pushNamed(context, "home_screen");
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: const Text("add_photo"),
+                            duration: const Duration(seconds: 1),
+                            action: SnackBarAction(
+                              label: 'ACTION',
+                              onPressed: () {},
+                            )));
+                      }
+                    }),
               )
             ]),
       ),
