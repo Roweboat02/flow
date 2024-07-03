@@ -93,7 +93,6 @@ class DatabaseProxy {
       url = await ref.getDownloadURL();
     }
 
-    final snapshot = db.collection("posts").doc(postID);
     final ref = db.collection("posts").doc(postID);
     ref.update({
       "content": content,
