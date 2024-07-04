@@ -52,7 +52,11 @@ class Post {
                               backgroundImage: poster.profile!.image,
                               radius: 30.0,
                             ),
-                            Text(poster.name, textAlign: TextAlign.left),
+                            Text(
+                              poster.name,
+                              textAlign: TextAlign.left,
+                              style: TextStyle(fontSize: 15),
+                            ),
                           ],
                         ),
                       ),

@@ -32,22 +32,56 @@ class Shed {
                         image: DecorationImage(
                             image: db.getShedBackground(),
                             fit: BoxFit.fitWidth))),
-                FutureBuilder(
-                    future: DatabaseProxy.getProfilePictureURL(),
-                    builder: ((context, snapshot) {
-                      if (snapshot.hasData) {
-                        return CircleAvatar(
-                          backgroundImage: NetworkImage(snapshot.data!),
-                          radius: 50,
-                        );
-                      } else {
-                        return const SizedBox(
-                          width: 60,
-                          height: 60,
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                    }))
+                Row(
+                  children: [
+                    FutureBuilder(
+                        future: DatabaseProxy.getProfilePictureURL(),
+                        builder: ((context, snapshot) {
+                          if (snapshot.hasData) {
+                            return CircleAvatar(
+                              backgroundImage: NetworkImage(snapshot.data!),
+                              radius: 50,
+                            );
+                          } else {
+                            return const SizedBox(
+                              width: 60,
+                              height: 60,
+                              child: Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                          }
+                        })),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        user.name,
+                        style: TextStyle(
+                            fontSize: 24,
+                            color: Colors.white,
+                            shadows: [
+                              Shadow(
+                                  // bottomLeft
+                                  offset: Offset(-2, -2),
+                                  color: Colors.black),
+                              Shadow(
+                                  // bottomRight
+                                  offset: Offset(2, -2),
+                                  color: Colors.black),
+                              Shadow(
+                                  // topRight
+                                  offset: Offset(2, 2),
+                                  color: Colors.black),
+                              Shadow(
+                                  // topLeft
+                                  offset: Offset(-2, 2),
+                                  color: Colors.black),
+                            ]),
+                      ),
+                    ),
+                  ],
+                )
               ],
             ),
             FutureBuilder(

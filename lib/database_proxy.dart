@@ -106,6 +106,11 @@ class DatabaseProxy {
       "reposts": {},
       "comments": {}
     });
+
+    final userRef = await db.collection("users").doc(auth.currentUser!.uid);
+    userRef.update({
+      "posts": FieldValue.arrayUnion([postID]),
+    });
   }
 
   Future makeNewComment(String postID, String content) async {
@@ -172,8 +177,10 @@ class DatabaseProxy {
   }
 
   repost(String postID) async {
+    String date = DateTime.now().toString();
+    String repostID = "${user.name}/$date/$postID".hashCode.toString();
     final repostList =
-        db.collection("posts").doc(postID).collection("reposts").doc(postID);
+        db.collection("posts").doc(postID).collection("reposts").doc(repostID);
 
     Position pos = await position;
     repostList.set({
@@ -182,6 +189,11 @@ class DatabaseProxy {
       "elevation": pos.altitude,
       "user": user.name,
       "comments": {} // {postID: {post}}
+    });
+    final userRef = db.collection("users").doc(auth.currentUser!.uid);
+
+    userRef.update({
+      "reposts": FieldValue.arrayUnion([postID]),
     });
   }
 
@@ -227,113 +239,50 @@ class DatabaseProxy {
     return temp;
   }
 
+  _mapToPost(Map<String, dynamic> map, String postID) {
+    String content = map["content"];
+    String username = map["user"];
+    String uid = map["uid"];
+    String profileUrl = map["profile_picture"];
+    String? url = map["picture"];
+    NetworkImage? img = (url == "" ? null : NetworkImage(url!));
+    DateTime date = DateTime.parse(map["date"]);
+    num lat = map["lat"];
+    num long = map["long"];
+    num elevation = map["elevation"];
+    return Post(
+        content,
+        postID,
+        Person(Image.network(profileUrl), username, uid),
+        lat,
+        long,
+        date,
+        elevation,
+        image: img);
+  }
+
   Future<List<Post>> getShed() async {
     final ref = await db.collection("users").doc(auth.currentUser!.uid).get();
     Map<String, dynamic> user = ref.data()!;
     final friends = user["friends"];
 
-    List<Post> temp = [];
+    List<String> postIDs = [];
     for (String friend in friends) {
-      final postSnapshot =
-          await db.collection("users").doc(friend).collection("posts").get();
-      final repostSnapshot =
-          await db.collection("users").doc(friend).collection("reposts").get();
+      final postSnapshot = await db.collection("users").doc(friend).get();
 
-      for (var docSnapshot in postSnapshot.docs) {
-        Map<String, dynamic> posts = docSnapshot.data();
-        String content = posts["content"];
-        String username = posts["user"];
-        String uid = posts["uid"];
-        String profileUrl = posts["profile_picture"];
-        String? url = posts["picture"];
-        NetworkImage? img = (url == "" ? null : NetworkImage(url!));
-        DateTime date = DateTime.parse(posts["date"]);
-        num lat = posts["lat"];
-        num long = posts["long"];
-        num elevation = posts["elevation"];
-        Post post = Post(
-            content,
-            docSnapshot.id,
-            Person(Image.network(profileUrl), username, uid),
-            lat,
-            long,
-            date,
-            elevation);
-        post.addImage(img);
-        temp.add(post);
-      }
-      for (var docSnapshot in repostSnapshot.docs) {
-        Map<String, dynamic> reposts = docSnapshot.data();
-        String content = reposts["content"];
-        String username = reposts["user"];
-        String uid = reposts["uid"];
-        String url = reposts["profile_picture"];
-        DateTime date = DateTime.parse(reposts["date"]);
-        num lat = reposts["lat"];
-        num long = reposts["long"];
-        num elevation = reposts["elevation"];
-        temp.add(Post(
-            content,
-            docSnapshot.id,
-            Person(Image.network(url), username, uid),
-            lat,
-            long,
-            date,
-            elevation));
-      }
+      postIDs.addAll(postSnapshot.data()!["posts"]);
+      postIDs.addAll(postSnapshot.data()!["reposts"]);
     }
-    final postSnapshot = await db
-        .collection("users")
-        .doc(auth.currentUser!.uid)
-        .collection("posts")
-        .get();
-    final repostSnapshot = await db
-        .collection("users")
-        .doc(auth.currentUser!.uid)
-        .collection("reposts")
-        .get();
+    final postSnapshot =
+        await db.collection("users").doc(auth.currentUser!.uid).get();
+    Map<String, dynamic> map = postSnapshot.data()!;
+    postIDs.addAll((map["posts"] as List<dynamic>).map((e) => e as String));
+    postIDs.addAll((map["reposts"] as List<dynamic>).map((e) => e as String));
 
-    for (var docSnapshot in postSnapshot.docs) {
-      Map<String, dynamic> posts = docSnapshot.data();
-      String content = posts["content"];
-      String username = posts["user"];
-      String uid = posts["uid"];
-      String profileUrl = posts["profile_picture"];
-      String? url = posts["picture"];
-      NetworkImage? img = (url == "" ? null : NetworkImage(url!));
-      DateTime date = DateTime.parse(posts["date"]);
-      num lat = posts["lat"];
-      num long = posts["long"];
-      num elevation = posts["elevation"];
-      Post post = Post(
-          content,
-          docSnapshot.id,
-          Person(Image.network(profileUrl), username, uid),
-          lat,
-          long,
-          date,
-          elevation);
-      post.addImage(img);
-      temp.add(post);
-    }
-    for (var docSnapshot in repostSnapshot.docs) {
-      Map<String, dynamic> reposts = docSnapshot.data();
-      String content = reposts["content"];
-      String username = reposts["user"];
-      String uid = reposts["uid"];
-      String url = reposts["profile_picture"];
-      DateTime date = DateTime.parse(reposts["date"]);
-      num lat = reposts["lat"];
-      num long = reposts["long"];
-      num elevation = reposts["elevation"];
-      temp.add(Post(
-          content,
-          docSnapshot.id,
-          Person(Image.network(url), username, uid),
-          lat,
-          long,
-          date,
-          elevation));
+    List<Post> temp = [];
+    for (var postID in postIDs) {
+      final ref = await db.collection("posts").doc(postID).get();
+      temp.add(_mapToPost(ref.data()!, postID));
     }
     return temp;
   }
@@ -362,7 +311,7 @@ class DatabaseProxy {
       List<num> distances = DistanceAspect.findDistances(
           pos.latitude, pos.longitude, lats, longs);
 
-      int loc = distances.firstWhere((e) => e == distances.reduce(min)) as int;
+      int loc = distances.firstWhere((e) => e == distances.reduce(min)).toInt();
       temp.add(Post(
           content,
           docSnapshot.id,
