@@ -43,9 +43,9 @@ class _NewChatPageState extends State<NewChatPage> {
                   IconButton(
                     icon: const Icon(Icons.search),
                     onPressed: () {
-
                       setState(() {
-                        addSearchResults(widget.db.contactSearch(_searchController.text));
+                        addSearchResults(
+                            widget.db.contactSearch(_searchController.text));
                         _searchController.clear();
                       });
                     },
@@ -65,32 +65,28 @@ class _NewChatPageState extends State<NewChatPage> {
                 ),
               ),
             )),
-        Text(users.toString()),
-
-FutureBuilder(
-                  future: searchResults,
-                  builder: ((context, snapshot) {
-                    if (snapshot.hasData) {
-                      return ListView.builder(
-                        scrollDirection: Axis.vertical,
-                        shrinkWrap: true,
-                        reverse: true,
-                        itemCount: snapshot.data!.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return snapshot.data[index].;
-                        },
-                      ),
-                    } else {
-                      return const SizedBox(
-                        width: 60,
-                        height: 60,
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                  }
-                  )
-        
-        )
+        Text(users.map((e) => e.name).toString()),
+        FutureBuilder(
+            future: searchResults,
+            builder: ((context, snapshot) {
+              if (snapshot.hasData) {
+                return ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  reverse: true,
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return snapshot.data![index].toWidget();
+                  },
+                );
+              } else {
+                return const SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: CircularProgressIndicator(),
+                );
+              }
+            }))
       ],
     );
   }
