@@ -22,11 +22,9 @@ class DatabaseProxy {
   final auth = FirebaseAuth.instance;
 
   static Future<bool> userExists(String username) async {
-    DocumentSnapshot snapshot = await FirebaseFirestore.instance
-        .collection("users")
-        .doc(username)
-        .get();
-    if (snapshot.exists) {
+    final ref = FirebaseFirestore.instance.collection("users");
+    final query = await ref.where("username", isEqualTo: username).get();
+    if (query.size > 0) {
       return true;
     } else {
       return false;
@@ -34,7 +32,11 @@ class DatabaseProxy {
   }
 
   static Future<Image> getProfilePictureURL() async {
-    return Image.network(FirebaseAuth.instance.currentUser!.photoURL!);
+    final ref = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get();
+    return Image.network(ref["profile_picture"]);
   }
 
   static Future<Position> get position async {
@@ -100,6 +102,7 @@ class DatabaseProxy {
       "long": pos.longitude,
       "elevation": pos.altitude,
       "user": user.name,
+      "uid": auth.currentUser!.uid,
       "profile_picture": getProfilePictureURL(),
       "picture": url ?? "",
       "date": date,
@@ -108,7 +111,7 @@ class DatabaseProxy {
     });
   }
 
-  Future makeComment(String postID, String content) async {
+  Future makeNewComment(String postID, String content) async {
     Position pos = await position;
     String date = DateTime.now().toString();
     String commentID =
@@ -125,27 +128,35 @@ class DatabaseProxy {
       "long": pos.longitude,
       "elevation": pos.altitude,
       "user": user.name,
+      "uid": auth.currentUser!.uid,
       "profile_picture": getProfilePictureURL(),
       "date": date,
       "reposts": {},
     });
   }
 
-  Future makeNewChat(String name, List<String> users) async {
+  Future makeNewChat(String name, List<Person> users) async {
     String date = DateTime.now().toString();
     String chatID = "$users/$name/$date".hashCode.toString();
 
     final ref = db.collection("chats").doc(chatID);
-    ref.update({
+    ref.set({
       "name": name,
-      "profile_picture": getProfilePictureURL(),
+      "picture": getProfilePictureURL(),
       "date": date,
+      "uids": users.map((e) => e.uid).toList(),
+      "users": users.map((e) => e.name).toList(),
       "messages": {}
     });
 
-    for (String user in users) {
-      final ref = db.collection("users").doc(user);
-      ref.set({"chats.$chatID": {}});
+    for (Person user in users) {
+      final ref = db.collection("users").doc(user.uid);
+      ref.set({
+        "chats.$chatID": {
+          "name": name,
+          "picture": getProfilePictureURL(),
+        }
+      });
     }
   }
 
@@ -156,6 +167,7 @@ class DatabaseProxy {
     snapshot.update({
       "messages.date": date,
       "messages.user": message.user.name,
+      "messages.uid": auth.currentUser!.uid,
       "messages.profile_picture": getProfilePictureURL(),
       "messages.content": message.content,
     });
@@ -175,10 +187,17 @@ class DatabaseProxy {
     });
   }
 
-  Future<bool> contactSearch(String username) async {
+  Future<List<Person>> contactSearch(String username) async {
     final ref = db.collection("users");
     final query = await ref.where("username", isEqualTo: username).get();
-    return query.size > 0;
+
+    List<Person> temp = [];
+    for (var doc in query.docs) {
+      Map<String, dynamic> map = doc.data();
+      temp.add(Person(
+          Image.network(map["profile_picture"]), map["username"], doc.id));
+    }
+    return temp;
   }
 
   contentSearch(String excerpt) async {
@@ -198,13 +217,14 @@ class DatabaseProxy {
       postID = i;
       String content = commentMap[i]["content"];
       String username = commentMap[i]["user"];
+      String uid = commentMap[i]["uid"];
       String url = commentMap[i]["profile_picture"];
       String date = commentMap[i]["date"];
       num lat = commentMap[i]["lat"];
       num long = commentMap[i]["long"];
       num elevation = commentMap[i]["elevation"];
-      temp.add(Post(content, postID, Person(Image.network(url), username), lat,
-          long, DateTime.parse(date), elevation));
+      temp.add(Post(content, postID, Person(Image.network(url), username, uid),
+          lat, long, DateTime.parse(date), elevation));
     }
     return temp;
   }
@@ -225,6 +245,7 @@ class DatabaseProxy {
         Map<String, dynamic> posts = docSnapshot.data();
         String content = posts["content"];
         String username = posts["user"];
+        String uid = posts["uid"];
         String profileUrl = posts["profile_picture"];
         String? url = posts["picture"];
         NetworkImage? img = (url == "" ? null : NetworkImage(url!));
@@ -235,7 +256,7 @@ class DatabaseProxy {
         Post post = Post(
             content,
             docSnapshot.id,
-            Person(Image.network(profileUrl), username),
+            Person(Image.network(profileUrl), username, uid),
             lat,
             long,
             date,
@@ -247,13 +268,20 @@ class DatabaseProxy {
         Map<String, dynamic> reposts = docSnapshot.data();
         String content = reposts["content"];
         String username = reposts["user"];
+        String uid = reposts["uid"];
         String url = reposts["profile_picture"];
         DateTime date = DateTime.parse(reposts["date"]);
         num lat = reposts["lat"];
         num long = reposts["long"];
         num elevation = reposts["elevation"];
-        temp.add(Post(content, docSnapshot.id,
-            Person(Image.network(url), username), lat, long, date, elevation));
+        temp.add(Post(
+            content,
+            docSnapshot.id,
+            Person(Image.network(url), username, uid),
+            lat,
+            long,
+            date,
+            elevation));
       }
     }
     return temp;
@@ -268,6 +296,7 @@ class DatabaseProxy {
       Map<String, dynamic> posts = docSnapshot.data();
       String content = posts["content"];
       String username = posts["user"];
+      String uid = posts["user"];
       String url = posts["profile_picture"];
       DateTime date = DateTime.parse(posts["date"]);
       num elevation = posts["elevation"];
@@ -286,13 +315,12 @@ class DatabaseProxy {
       temp.add(Post(
           content,
           docSnapshot.id,
-          Person(Image.network(url), username),
+          Person(Image.network(url), username, uid),
           lats[loc],
           longs[loc],
           date,
           elevation));
     }
-
     return await RelativityGod().sort(temp);
   }
 
@@ -307,8 +335,8 @@ class DatabaseProxy {
     for (var docSnapshot in snapshot.docs) {
       List<Message> messages = [];
       for (Map message in docSnapshot["messages"]) {
-        messages.add(Message(
-            message["content"], Person(message["picture"], message["user"])));
+        messages.add(Message(message["content"],
+            Person(message["picture"], message["user"], message["user"])));
       }
       temp.add(Chat(messages, docSnapshot["name"], docSnapshot["users"],
           docSnapshot.id, NetworkImage(docSnapshot["picture"])));

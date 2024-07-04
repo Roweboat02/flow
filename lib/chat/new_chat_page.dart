@@ -14,7 +14,13 @@ class NewChatPage extends StatefulWidget {
 
 class _NewChatPageState extends State<NewChatPage> {
   final TextEditingController _searchController = TextEditingController();
-  List<String> users = [];
+  List<Person> users = [];
+  late Future<List<Person>> searchResults;
+
+  addSearchResults(Future<List<Person>> results) {
+    searchResults = results;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -35,18 +41,19 @@ class _NewChatPageState extends State<NewChatPage> {
                 // Add a search icon or button to the search bar
                 prefixIcon: Row(children: [
                   IconButton(
-                    icon: const Icon(Icons.add),
+                    icon: const Icon(Icons.search),
                     onPressed: () {
-                      _searchController.clear();
+
                       setState(() {
-                        users.add(_searchController.text);
+                        addSearchResults(widget.db.contactSearch(_searchController.text));
+                        _searchController.clear();
                       });
                     },
                   ),
                   IconButton(
                     icon: const Icon(Icons.send),
                     onPressed: () {
-                      users.add(widget.user.name);
+                      users.add(widget.user);
                       widget.db.makeNewChat(_searchController.text, users);
                       _searchController.clear();
                       Navigator.pop(context);
@@ -59,10 +66,31 @@ class _NewChatPageState extends State<NewChatPage> {
               ),
             )),
         Text(users.toString()),
-        ListView(
-          scrollDirection: Axis.vertical,
-          shrinkWrap: true,
-        ) // contact list updates as searches
+
+FutureBuilder(
+                  future: searchResults,
+                  builder: ((context, snapshot) {
+                    if (snapshot.hasData) {
+                      return ListView.builder(
+                        scrollDirection: Axis.vertical,
+                        shrinkWrap: true,
+                        reverse: true,
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return snapshot.data[index].;
+                        },
+                      ),
+                    } else {
+                      return const SizedBox(
+                        width: 60,
+                        height: 60,
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                  }
+                  )
+        
+        )
       ],
     );
   }

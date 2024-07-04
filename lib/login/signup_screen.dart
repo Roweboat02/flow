@@ -1,3 +1,4 @@
+import 'package:flow/database_proxy.dart';
 import 'package:flow/login/new_user.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -84,13 +85,23 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               child: const Text('Register'),
               onPressed: () async {
                 try {
-                  final user = await _auth.createUserWithEmailAndPassword(
-                      email: email, password: password);
+                  if (await DatabaseProxy.userExists(username)) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: const Text("email-already-in-use"),
+                        duration: const Duration(seconds: 1),
+                        action: SnackBarAction(
+                          label: 'ACTION',
+                          onPressed: () {},
+                        )));
+                  } else {
+                    final user = await _auth.createUserWithEmailAndPassword(
+                        email: email, password: password);
 
-                  user.user!.updateDisplayName(username);
+                    user.user!.updateDisplayName(username);
 
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => NewUserPage(user)));
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => NewUserPage(user)));
+                  }
                 } on FirebaseAuthException catch (e) {
                   if (e.code == "email-already-in-use") {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -104,6 +115,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   } else if (e.code == "weak-password") {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: const Text("weak-password"),
+                      duration: const Duration(seconds: 1),
+                      action: SnackBarAction(
+                        label: 'ACTION',
+                        onPressed: () {},
+                      ),
+                    ));
+                  } else if (e.code == "invalid-email") {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: const Text("invalid-email"),
                       duration: const Duration(seconds: 1),
                       action: SnackBarAction(
                         label: 'ACTION',

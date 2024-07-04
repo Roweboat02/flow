@@ -62,8 +62,10 @@ class _NavigationExampleState extends State<NavigationExample> {
 
   @override
   void initState() {
-    user = Person(Image.file(File('assets/images/default_profile.png')),
-        FirebaseAuth.instance.currentUser!.displayName!);
+    user = Person(
+        Image.file(File('assets/images/default_profile.png')),
+        FirebaseAuth.instance.currentUser!.displayName!,
+        FirebaseAuth.instance.currentUser!.uid);
     user.setProfilePicture(DatabaseProxy.getProfilePictureURL());
     db = DatabaseProxy(user);
     pages = [Shed(db, user), Feed(db, user), ChatsPage(db, user)];
