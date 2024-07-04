@@ -8,6 +8,16 @@ class TreeView extends StatelessWidget {
   const TreeView(this.posts, this.commentOnPressed, this.repostOnPressed,
       {super.key});
 
+  Widget buildTreeWithoutScroll(List<Post> posts) {
+    return Row(children: [
+      for (Post post in posts)
+        Column(children: [
+          post.toWidget(commentOnPressed, repostOnPressed),
+          buildTreeWithoutScroll(post.comments)
+        ])
+    ]);
+  }
+
   Widget buildTree(List<Post> posts) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -18,7 +28,7 @@ class TreeView extends StatelessWidget {
                 scrollDirection: Axis.vertical,
                 child: Column(children: [
                   post.toWidget(commentOnPressed, repostOnPressed),
-                  buildTree(post.comments)
+                  buildTreeWithoutScroll(post.comments)
                 ]))
         ],
       ),
