@@ -24,11 +24,7 @@ class DatabaseProxy {
   static Future<bool> userExists(String username) async {
     final ref = FirebaseFirestore.instance.collection("users");
     final query = await ref.where("username", isEqualTo: username).get();
-    if (query.size > 0) {
-      return true;
-    } else {
-      return false;
-    }
+    return query.size > 0;
   }
 
   static Future<Image> getProfilePictureURL() async {
