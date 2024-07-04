@@ -61,21 +61,22 @@ class DatabaseProxy {
     final imageRef = userRef.child("profile_picture.png");
 
     await imageRef.putFile(File(fileName));
-    return imageRef.getDownloadURL();
+    return await imageRef.getDownloadURL();
   }
 
-  static Future makeNewUser() async {
+  static Future makeNewUser(String url) async {
     // Expects display name to be set
     final inst = FirebaseFirestore.instance;
     final snapshot =
         inst.collection("users").doc(FirebaseAuth.instance.currentUser!.uid);
-    snapshot.update({
+    await snapshot.set({
       "username": FirebaseAuth.instance.currentUser!.displayName!,
+      "uid": FirebaseAuth.instance.currentUser!.uid,
       "chats": [],
-      "posts": {},
-      "reposts": {},
-      "friends": {},
-      "profile_picture": getProfilePictureURL(),
+      "posts": [],
+      "reposts": [],
+      "friends": [],
+      "profile_picture": url,
     });
     return true;
   }
@@ -92,7 +93,7 @@ class DatabaseProxy {
     }
 
     final ref = db.collection("posts").doc(postID);
-    ref.update({
+    ref.set({
       "content": content,
       "lat": pos.latitude,
       "long": pos.longitude,
@@ -228,7 +229,7 @@ class DatabaseProxy {
   Future<List<Post>> getShed() async {
     final ref = await db.collection("users").doc(auth.currentUser!.uid).get();
     Map<String, dynamic> user = ref.data()!;
-    final friends = user["friends"] as List<String>;
+    final friends = user["friends"];
 
     List<Post> temp = [];
     for (String friend in friends) {

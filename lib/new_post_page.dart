@@ -22,8 +22,8 @@ class _NewPostPageState extends State<NewPostPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        child: Column(
+    return Scaffold(
+        body: Column(
       children: [
         TextField(
             controller: controller,

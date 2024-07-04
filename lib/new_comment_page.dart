@@ -22,32 +22,34 @@ class _NewCommentPageState extends State<NewCommentPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        TextField(
-            controller: controller,
-            decoration: InputDecoration(
-              hintText: "Enter comment...",
-              suffixIcon: IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () {
-                  controller.clear();
-                  Navigator.pop(context);
-                },
-              ),
-              // Add a search icon or button to the search bar
-              prefixIcon: Row(children: [
-                CameraOrGalleryMenu(setImagePath),
-                IconButton(onPressed: () {}, icon: const Icon(Icons.send))
-              ]),
-            )),
-        if (imgPath != null)
-          SizedBox(
-            width: 250,
-            height: 400,
-            child: Image.file(File(imgPath!)),
-          ),
-      ],
+    return Scaffold(
+      body: Column(
+        children: [
+          TextField(
+              controller: controller,
+              decoration: InputDecoration(
+                hintText: "Enter comment...",
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    controller.clear();
+                    Navigator.pop(context);
+                  },
+                ),
+                // Add a search icon or button to the search bar
+                prefixIcon: Row(children: [
+                  CameraOrGalleryMenu(setImagePath),
+                  IconButton(onPressed: () {}, icon: const Icon(Icons.send))
+                ]),
+              )),
+          if (imgPath != null)
+            SizedBox(
+              width: 250,
+              height: 400,
+              child: Image.file(File(imgPath!)),
+            ),
+        ],
+      ),
     );
   }
 }

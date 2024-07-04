@@ -45,8 +45,9 @@ class _NewUserPageState extends State<NewUserPage> {
                     icon: const Icon(Icons.send),
                     onPressed: () async {
                       if (imagePath != null) {
-                        await DatabaseProxy.uploadProfilePicture(imagePath!);
-                        DatabaseProxy.makeNewUser();
+                        DatabaseProxy.makeNewUser(
+                            await DatabaseProxy.uploadProfilePicture(
+                                imagePath!));
                         Navigator.pushNamed(context, "home_screen");
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(

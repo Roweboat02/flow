@@ -22,7 +22,7 @@ class Message {
                   child: Column(
                     children: [
                       CircleAvatar(
-                        backgroundImage: user.profile.image,
+                        backgroundImage: user.profile!.image,
                         radius: 30.0,
                       ),
                       Text(user.name, textAlign: TextAlign.left),

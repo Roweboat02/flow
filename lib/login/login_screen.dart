@@ -63,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   //Do something with the user input.
                 },
                 decoration: kTextFieldDecoration.copyWith(
-                    hintText: 'Enter your password.')),
+                    hintText: 'Enter your password')),
             const SizedBox(
               height: 24.0,
             ),
@@ -73,6 +73,26 @@ class _LoginScreenState extends State<LoginScreen> {
                   try {
                     await _auth.signInWithEmailAndPassword(
                         email: email, password: password);
+                  } on FirebaseAuthException catch (e) {
+                    if (e.code == "user-not-found") {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: const Text("user-not-found"),
+                        duration: const Duration(seconds: 1),
+                        action: SnackBarAction(
+                          label: 'ACTION',
+                          onPressed: () {},
+                        ),
+                      ));
+                    } else if (e.code == "wrong-password") {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: const Text("wrong-password"),
+                        duration: const Duration(seconds: 1),
+                        action: SnackBarAction(
+                          label: 'ACTION',
+                          onPressed: () {},
+                        ),
+                      ));
+                    }
                   } finally {
                     Navigator.pushNamed(context, 'home_screen');
                   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Person {
-  Image profile;
+  Image? profile;
   String name;
   String uid;
 
@@ -14,9 +14,11 @@ class Person {
   Widget toWidget() {
     return Row(
       children: [
-        CircleAvatar(
-          child: profile,
-        ),
+        profile == null
+            ? CircularProgressIndicator()
+            : CircleAvatar(
+                child: profile,
+              ),
         Text(
           name,
           style: TextStyle(fontSize: 15),
