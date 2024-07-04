@@ -27,12 +27,12 @@ class DatabaseProxy {
     return query.size > 0;
   }
 
-  static Future<Image> getProfilePictureURL() async {
+  static Future<String> getProfilePictureURL() async {
     final ref = await FirebaseFirestore.instance
         .collection("users")
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .get();
-    return Image.network(ref["profile_picture"]);
+    return ref["profile_picture"];
   }
 
   static Future<Position> get position async {
@@ -100,7 +100,7 @@ class DatabaseProxy {
       "elevation": pos.altitude,
       "user": user.name,
       "uid": auth.currentUser!.uid,
-      "profile_picture": getProfilePictureURL(),
+      "profile_picture": (await getProfilePictureURL()),
       "picture": url ?? "",
       "date": date,
       "reposts": {},
@@ -129,6 +129,7 @@ class DatabaseProxy {
       "profile_picture": getProfilePictureURL(),
       "date": date,
       "reposts": {},
+      "comments": {}
     });
   }
 
@@ -281,6 +282,59 @@ class DatabaseProxy {
             elevation));
       }
     }
+    final postSnapshot = await db
+        .collection("users")
+        .doc(auth.currentUser!.uid)
+        .collection("posts")
+        .get();
+    final repostSnapshot = await db
+        .collection("users")
+        .doc(auth.currentUser!.uid)
+        .collection("reposts")
+        .get();
+
+    for (var docSnapshot in postSnapshot.docs) {
+      Map<String, dynamic> posts = docSnapshot.data();
+      String content = posts["content"];
+      String username = posts["user"];
+      String uid = posts["uid"];
+      String profileUrl = posts["profile_picture"];
+      String? url = posts["picture"];
+      NetworkImage? img = (url == "" ? null : NetworkImage(url!));
+      DateTime date = DateTime.parse(posts["date"]);
+      num lat = posts["lat"];
+      num long = posts["long"];
+      num elevation = posts["elevation"];
+      Post post = Post(
+          content,
+          docSnapshot.id,
+          Person(Image.network(profileUrl), username, uid),
+          lat,
+          long,
+          date,
+          elevation);
+      post.addImage(img);
+      temp.add(post);
+    }
+    for (var docSnapshot in repostSnapshot.docs) {
+      Map<String, dynamic> reposts = docSnapshot.data();
+      String content = reposts["content"];
+      String username = reposts["user"];
+      String uid = reposts["uid"];
+      String url = reposts["profile_picture"];
+      DateTime date = DateTime.parse(reposts["date"]);
+      num lat = reposts["lat"];
+      num long = reposts["long"];
+      num elevation = reposts["elevation"];
+      temp.add(Post(
+          content,
+          docSnapshot.id,
+          Person(Image.network(url), username, uid),
+          lat,
+          long,
+          date,
+          elevation));
+    }
     return temp;
   }
 
@@ -297,10 +351,10 @@ class DatabaseProxy {
       String url = posts["profile_picture"];
       DateTime date = DateTime.parse(posts["date"]);
       num elevation = posts["elevation"];
-      List<num> lats = posts["lat"];
-      List<num> longs = posts["long"];
+      List<num> lats = [posts["lat"]];
+      List<num> longs = [posts["long"]];
 
-      Map<String, Map> reposts = posts["reposts"];
+      Map<String, dynamic> reposts = posts["reposts"];
       for (String repostID in reposts.keys) {
         lats.add(reposts[repostID]!["lat"]);
         longs.add(reposts[repostID]!["long"]);

@@ -7,8 +7,8 @@ class Person {
 
   Person(this.profile, this.name, this.uid);
 
-  setProfilePicture(Future<Image> img) async {
-    profile = await img;
+  setProfilePicture(Future<String> img) async {
+    profile = Image.network(await img);
   }
 
   Widget toWidget() {
@@ -17,7 +17,7 @@ class Person {
         profile == null
             ? CircularProgressIndicator()
             : CircleAvatar(
-                child: profile,
+                backgroundImage: profile!.image,
               ),
         Text(
           name,

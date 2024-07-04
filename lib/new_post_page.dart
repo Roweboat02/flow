@@ -18,6 +18,7 @@ class _NewPostPageState extends State<NewPostPage> {
 
   setImagePath(String imagePath) {
     imgPath = imagePath;
+    setState(() {});
   }
 
   @override
@@ -25,27 +26,35 @@ class _NewPostPageState extends State<NewPostPage> {
     return Scaffold(
         body: Column(
       children: [
-        TextField(
-            controller: controller,
-            decoration: InputDecoration(
-              hintText: "Enter comment...",
-              suffixIcon: IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () {
-                  controller.clear();
-                  Navigator.pop(context);
-                },
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16.0, 50, 16.0, 0.0),
+          child: Row(
+            children: [
+              Flexible(
+                child: TextField(
+                    controller: controller,
+                    decoration: InputDecoration(
+                      hintText: "Enter Post...",
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          controller.clear();
+                          Navigator.pop(context);
+                        },
+                      ),
+                      // Add a search icon or button to the search bar
+                      prefixIcon: CameraOrGalleryMenu(setImagePath),
+                    )),
               ),
-              // Add a search icon or button to the search bar
-              prefixIcon: Row(children: [
-                CameraOrGalleryMenu(setImagePath),
-                IconButton(
-                    onPressed: () {
-                      widget.db.makeNewPost(controller.text, imgPath);
-                    },
-                    icon: const Icon(Icons.send))
-              ]),
-            )),
+              IconButton(
+                  onPressed: () {
+                    widget.db.makeNewPost(controller.text, imgPath);
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.send))
+            ],
+          ),
+        ),
         if (imgPath != null)
           SizedBox(
             width: 250,

@@ -34,9 +34,9 @@ class _NewUserPageState extends State<NewUserPage> {
                 padding: const EdgeInsets.all(8.0),
                 child: CircleAvatar(
                   radius: 50,
-                  child: imagePath == null
-                      ? Image.asset("assets/images/default_profile.png")
-                      : Image.file(File(imagePath!)),
+                  backgroundImage: imagePath == null
+                      ? Image.asset("assets/images/default_profile.png").image
+                      : Image.file(File(imagePath!)).image,
                 ),
               ),
               Padding(
