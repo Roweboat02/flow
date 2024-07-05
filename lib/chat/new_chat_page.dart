@@ -19,6 +19,7 @@ class _NewChatPageState extends State<NewChatPage> {
 
   addSearchResults(Future<List<Person>> results) {
     searchResults = results;
+    setState(() {});
   }
 
   @override
@@ -87,7 +88,20 @@ class _NewChatPageState extends State<NewChatPage> {
                       reverse: true,
                       itemCount: snapshot.data!.length,
                       itemBuilder: (BuildContext context, int index) {
-                        return snapshot.data![index].toWidget();
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                  onPressed: () {
+                                    users.add(snapshot.data![index]);
+                                    setState(() {});
+                                  },
+                                  icon: Icon(Icons.add)),
+                              snapshot.data![index].toWidget()
+                            ],
+                          ),
+                        );
                       },
                     );
                   } else {

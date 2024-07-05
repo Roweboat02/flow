@@ -17,8 +17,9 @@ class _NewPostPageState extends State<NewPostPage> {
   TextEditingController controller = TextEditingController();
 
   setImagePath(String imagePath) {
-    imgPath = imagePath;
-    setState(() {});
+    setState(() {
+      imgPath = imagePath;
+    });
   }
 
   @override
@@ -61,6 +62,8 @@ class _NewPostPageState extends State<NewPostPage> {
             height: 400,
             child: Image.file(File(imgPath!)),
           )
+        else
+          SizedBox()
       ],
     ));
   }

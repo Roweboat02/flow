@@ -36,15 +36,13 @@ class DistanceAspect implements FilterAspect {
     List<num> longs = posts.map((Post e) => e.long).toList();
     List<num> distances =
         findDistances(pos.latitude, pos.longitude, lats, longs);
-    List<num> dists = [];
-    Map<num, Post> map = {};
+    List<Post> out = [];
+
     for (var i = 0; i < distances.length; i++) {
       if (distances[i] < maxDist) {
-        dists.add(distances[i]);
-        map[distances[i]] = posts[i];
+        out.add(posts[i]);
       }
     }
-    dists.sort();
-    return dists.map((num e) => map[e]!).toList();
+    return out;
   }
 }

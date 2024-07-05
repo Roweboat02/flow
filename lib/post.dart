@@ -11,6 +11,13 @@ class Post {
   DateTime date;
   List<Post> comments = [];
   NetworkImage? image;
+  bool comment = false;
+  String? rootID;
+
+  setComment(String rID) {
+    rootID = rID;
+    comment = true;
+  }
 
   addComment(Post comment) {
     comments.add(comment);
@@ -84,16 +91,17 @@ class Post {
                   ),
                 ],
               ),
-              Column(
-                children: [
-                  IconButton(
-                      onPressed: () => repostOnPressed(postID),
-                      icon: const Icon(Icons.repeat)),
-                  IconButton(
-                      onPressed: () => commentOnPressed(postID),
-                      icon: const Icon(Icons.comment))
-                ],
-              ),
+              if (!comment)
+                Column(
+                  children: [
+                    IconButton(
+                        onPressed: () => repostOnPressed(postID),
+                        icon: const Icon(Icons.repeat)),
+                    IconButton(
+                        onPressed: () => commentOnPressed(postID),
+                        icon: const Icon(Icons.comment))
+                  ],
+                ),
             ],
           )),
     );

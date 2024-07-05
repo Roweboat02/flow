@@ -18,6 +18,7 @@ class _NewCommentPageState extends State<NewCommentPage> {
 
   setImagePath(String imagePath) {
     imgPath = imagePath;
+    setState(() {});
   }
 
   @override
@@ -59,7 +60,9 @@ class _NewCommentPageState extends State<NewCommentPage> {
               width: 250,
               height: 400,
               child: Image.file(File(imgPath!)),
-            ),
+            )
+          else
+            SizedBox()
         ],
       ),
     );
