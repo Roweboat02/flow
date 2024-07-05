@@ -54,7 +54,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '361604759879',
     projectId: 'flow-ba009',
     storageBucket: 'flow-ba009.appspot.com',
-    iosBundleId: 'com.flow',
+    iosBundleId: 'com.flow.neighbour',
   );
 
   static const FirebaseOptions web = FirebaseOptions(
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '361604759879',
     projectId: 'flow-ba009',
     storageBucket: 'flow-ba009.appspot.com',
-    iosBundleId: 'com.flow',
+    iosBundleId: 'com.flow.neighbour',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
