@@ -14,7 +14,7 @@ class NewChatPage extends StatefulWidget {
 
 class _NewChatPageState extends State<NewChatPage> {
   final TextEditingController _searchController = TextEditingController();
-  List<Person> users = [];
+  Set<Person> users = {};
   Future<List<Person>>? searchResults;
 
   addSearchResults(Future<List<Person>> results) {
@@ -42,7 +42,8 @@ class _NewChatPageState extends State<NewChatPage> {
                         icon: const Icon(Icons.send),
                         onPressed: () {
                           users.add(widget.user);
-                          widget.db.makeNewChat(_searchController.text, users);
+                          widget.db.makeNewChat(
+                              _searchController.text, users.toList());
                           _searchController.clear();
                           Navigator.pop(context);
                         },
