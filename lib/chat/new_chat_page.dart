@@ -76,7 +76,9 @@ class _NewChatPageState extends State<NewChatPage> {
             ],
           ),
         ),
-        Text(users.map((e) => e.name).toString()),
+        SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Text(users.map((e) => e.name).toString())),
         searchResults == null
             ? Column()
             : FutureBuilder(
