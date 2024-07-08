@@ -34,15 +34,15 @@ class DistanceAspect implements FilterAspect {
     Position pos = await DatabaseProxy.position;
     List<num> lats = posts.map((Post e) => e.lat).toList();
     List<num> longs = posts.map((Post e) => e.long).toList();
-    List<num> distances =
-        findDistances(pos.latitude, pos.longitude, lats, longs);
     List<Post> out = [];
 
-    for (var i = 0; i < distances.length; i++) {
-      if (distances[i] < maxDist) {
+    for (var i = 0; i < lats.length; i++) {
+      if (findDistance(lats[i], longs[i], pos.latitude, pos.longitude) <
+          maxDist) {
         out.add(posts[i]);
       }
     }
+
     return out;
   }
 }
