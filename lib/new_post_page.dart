@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flow/database_proxy.dart';
 import 'package:flow/images/camera_or_gallery_dialog.dart';
@@ -13,12 +14,12 @@ class NewPostPage extends StatefulWidget {
 }
 
 class _NewPostPageState extends State<NewPostPage> {
-  String? imgPath;
+  Uint8List? img;
   TextEditingController controller = TextEditingController();
 
-  setImagePath(String imagePath) {
+  setImage(Uint8List image) {
     setState(() {
-      imgPath = imagePath;
+      img = image;
     });
   }
 
@@ -44,23 +45,23 @@ class _NewPostPageState extends State<NewPostPage> {
                         },
                       ),
                       // Add a search icon or button to the search bar
-                      prefixIcon: CameraOrGalleryMenu(setImagePath),
+                      prefixIcon: CameraOrGalleryMenu(setImage),
                     )),
               ),
               IconButton(
                   onPressed: () {
-                    widget.db.makeNewPost(controller.text, imgPath);
+                    widget.db.makeNewPost(controller.text, img);
                     Navigator.pop(context);
                   },
                   icon: const Icon(Icons.send))
             ],
           ),
         ),
-        if (imgPath != null)
+        if (img != null)
           SizedBox(
             width: 250,
             height: 400,
-            child: Image.file(File(imgPath!)),
+            child: Image.memory(img!),
           )
         else
           SizedBox()

@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flow/chat/chats_page.dart';
 import 'package:flow/database_proxy.dart';
 import 'package:flow/feed_page.dart';
+import 'package:flow/firebase_options.dart';
 import 'package:flow/login/login_screen.dart';
 import 'package:flow/shed_page.dart';
 import 'package:flow/person.dart';
@@ -17,7 +18,9 @@ import 'new_post_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(MyApp());
 }
 

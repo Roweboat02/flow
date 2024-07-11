@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flow/database_proxy.dart';
@@ -14,10 +15,10 @@ class NewUserPage extends StatefulWidget {
 }
 
 class _NewUserPageState extends State<NewUserPage> {
-  String? imagePath;
+  Uint8List? image;
 
-  setImgPath(String imagePath) {
-    this.imagePath = imagePath;
+  setImgPath(Uint8List image) {
+    this.image = image;
     setState(() {});
   }
 
@@ -34,9 +35,9 @@ class _NewUserPageState extends State<NewUserPage> {
                 padding: const EdgeInsets.all(8.0),
                 child: CircleAvatar(
                   radius: 50,
-                  backgroundImage: imagePath == null
+                  backgroundImage: image == null
                       ? Image.asset("assets/images/default_profile.png").image
-                      : Image.file(File(imagePath!)).image,
+                      : Image.memory(image!).image,
                 ),
               ),
               Padding(
@@ -44,10 +45,9 @@ class _NewUserPageState extends State<NewUserPage> {
                 child: IconButton(
                     icon: const Icon(Icons.send),
                     onPressed: () async {
-                      if (imagePath != null) {
+                      if (image != null) {
                         DatabaseProxy.makeNewUser(
-                            await DatabaseProxy.uploadProfilePicture(
-                                imagePath!));
+                            await DatabaseProxy.uploadProfilePicture(image!));
                         Navigator.pushNamed(context, "home_screen");
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(

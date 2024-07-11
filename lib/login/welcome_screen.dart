@@ -22,7 +22,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               children: [
                 Flexible(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: ElevatedButton(
                       child: const Text(
                         'Log In',

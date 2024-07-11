@@ -42,18 +42,22 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCPNELM36DO-RKKz8t7UGzej_fauk1NcPI',
-    appId: '1:361604759879:android:be4f25ee1023e22af70c62',
+    appId: '1:361604759879:android:a7538da961540659f70c62',
     messagingSenderId: '361604759879',
     projectId: 'flow-ba009',
+    databaseURL: 'https://flow-ba009-default-rtdb.firebaseio.com',
     storageBucket: 'flow-ba009.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyD6u72_hmJRjy6oW6ERJZKLp4D2apeNfvk',
-    appId: '1:361604759879:ios:cbefa52658dc20dff70c62',
+    appId: '1:361604759879:ios:d4e876de6c6d5a32f70c62',
     messagingSenderId: '361604759879',
     projectId: 'flow-ba009',
+    databaseURL: 'https://flow-ba009-default-rtdb.firebaseio.com',
     storageBucket: 'flow-ba009.appspot.com',
+    androidClientId: '361604759879-2sbih2e2bs7psjmsgrfu33lsra74gghl.apps.googleusercontent.com',
+    iosClientId: '361604759879-hb36dkg6tdcku7n77btecsfdn08ol7e7.apps.googleusercontent.com',
     iosBundleId: 'com.flow.neighbour',
   );
 
@@ -63,16 +67,20 @@ class DefaultFirebaseOptions {
     messagingSenderId: '361604759879',
     projectId: 'flow-ba009',
     authDomain: 'flow-ba009.firebaseapp.com',
+    databaseURL: 'https://flow-ba009-default-rtdb.firebaseio.com',
     storageBucket: 'flow-ba009.appspot.com',
     measurementId: 'G-1ZKG4QW6PE',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyD6u72_hmJRjy6oW6ERJZKLp4D2apeNfvk',
-    appId: '1:361604759879:ios:cbefa52658dc20dff70c62',
+    appId: '1:361604759879:ios:d4e876de6c6d5a32f70c62',
     messagingSenderId: '361604759879',
     projectId: 'flow-ba009',
+    databaseURL: 'https://flow-ba009-default-rtdb.firebaseio.com',
     storageBucket: 'flow-ba009.appspot.com',
+    androidClientId: '361604759879-2sbih2e2bs7psjmsgrfu33lsra74gghl.apps.googleusercontent.com',
+    iosClientId: '361604759879-hb36dkg6tdcku7n77btecsfdn08ol7e7.apps.googleusercontent.com',
     iosBundleId: 'com.flow.neighbour',
   );
 
@@ -82,7 +90,9 @@ class DefaultFirebaseOptions {
     messagingSenderId: '361604759879',
     projectId: 'flow-ba009',
     authDomain: 'flow-ba009.firebaseapp.com',
+    databaseURL: 'https://flow-ba009-default-rtdb.firebaseio.com',
     storageBucket: 'flow-ba009.appspot.com',
     measurementId: 'G-4ZJMJ01MJG',
   );
+
 }

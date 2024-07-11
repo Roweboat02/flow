@@ -1,6 +1,10 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_picker_web/image_picker_web.dart';
 
 class CameraOrGalleryMenu extends StatelessWidget {
   final Icon icon;
@@ -14,7 +18,7 @@ class CameraOrGalleryMenu extends StatelessWidget {
         source: ImageSource.gallery,
       );
       try {
-        pictureCallback(pickedFile!.path);
+        pictureCallback(await pickedFile!.readAsBytes());
       } on TypeError catch (e) {}
     } on PlatformException {}
   }
@@ -25,32 +29,43 @@ class CameraOrGalleryMenu extends StatelessWidget {
         source: ImageSource.camera,
       );
       try {
-        pictureCallback(pickedFile!.path);
+        pictureCallback(await pickedFile!.readAsBytes());
       } on TypeError catch (e) {}
     } on PlatformException {}
   }
 
+  void _webImage() async {
+    try {
+      Uint8List? bytesFromPicker = await ImagePickerWeb.getImageAsBytes();
+      pictureCallback(bytesFromPicker);
+    } catch (e) {}
+  }
+
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton(
-        icon: icon,
-        onSelected: (value) {
-          [
-            _openGallery(context),
-            _openCamera(context),
-          ][value];
-        },
-        itemBuilder: (BuildContext context) => [
-              const PopupMenuItem(
-                  value: 0,
-                  child: Column(
-                    children: [Icon(Icons.collections), Text("From Gallery")],
-                  )),
-              const PopupMenuItem(
-                  value: 1,
-                  child: Column(
-                    children: [Icon(Icons.camera_alt), Text("From Camera")],
-                  ))
-            ]);
+    if (!kIsWeb) {
+      return PopupMenuButton(
+          icon: icon,
+          onSelected: (value) {
+            [
+              _openGallery(context),
+              _openCamera(context),
+            ][value];
+          },
+          itemBuilder: (BuildContext context) => [
+                const PopupMenuItem(
+                    value: 0,
+                    child: Column(
+                      children: [Icon(Icons.collections), Text("From Gallery")],
+                    )),
+                const PopupMenuItem(
+                    value: 1,
+                    child: Column(
+                      children: [Icon(Icons.camera_alt), Text("From Camera")],
+                    ))
+              ]);
+    } else {
+      return IconButton(onPressed: _webImage, icon: icon);
+    }
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -63,13 +64,13 @@ class DatabaseProxy {
         desiredAccuracy: LocationAccuracy.high);
   }
 
-  static Future<String> uploadProfilePicture(String fileName) async {
+  static Future<String> uploadProfilePicture(Uint8List data) async {
     Reference reference = FirebaseStorage.instance.ref();
     final ref = reference.child("users");
     final userRef = ref.child("${FirebaseAuth.instance.currentUser!.uid}");
     final imageRef = userRef.child("profile_picture.png");
 
-    await imageRef.putFile(File(fileName));
+    await imageRef.putData(data);
     return await imageRef.getDownloadURL();
   }
 
@@ -90,14 +91,14 @@ class DatabaseProxy {
     return true;
   }
 
-  Future makeNewPost(String content, String? imagePath) async {
+  Future makeNewPost(String content, Uint8List? image) async {
     Position pos = await position;
     String date = DateTime.now().toString();
     String postID = "${user.name}/$content/$date".hashCode.toString();
     String? url;
-    if (imagePath != null) {
+    if (image != null) {
       final ref = FirebaseStorage.instance.ref("posts/$postID/picture");
-      await ref.putFile(File(imagePath));
+      await ref.putData(image);
       url = await ref.getDownloadURL();
     }
 
@@ -122,11 +123,18 @@ class DatabaseProxy {
     });
   }
 
-  Future makeNewComment(String postID, String content) async {
+  Future makeNewComment(String postID, String content, Uint8List? img) async {
     Position pos = await position;
     String date = DateTime.now().toString();
     String commentID =
         "${user.name}/$content/$date/$postID".hashCode.toString();
+    String? url;
+    if (img != null) {
+      final ref =
+          FirebaseStorage.instance.ref("posts/$postID/$commentID/picture");
+      await ref.putData(img);
+      url = await ref.getDownloadURL();
+    }
 
     final snapshot = db
         .collection("posts")
@@ -141,6 +149,7 @@ class DatabaseProxy {
       "user": user.name,
       "uid": auth.currentUser!.uid,
       "profile_picture": await getProfilePictureURL(),
+      "picture": url == null ? "" : url,
       "date": date,
       "reposts": {},
       "comments": {}

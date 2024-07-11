@@ -5,7 +5,8 @@ class TreeView extends StatelessWidget {
   final List<Post> posts;
   final Function commentOnPressed;
   final Function repostOnPressed;
-  const TreeView(this.posts, this.commentOnPressed, this.repostOnPressed,
+  final ScrollController controller = ScrollController();
+  TreeView(this.posts, this.commentOnPressed, this.repostOnPressed,
       {super.key});
 
   Widget buildTreeWithoutScroll(List<Post> posts) {
@@ -18,19 +19,42 @@ class TreeView extends StatelessWidget {
     ]);
   }
 
+  List<Widget> forPosts(List<Post> posts) {
+    List<Widget> temp = [];
+    for (var post in posts) {
+      temp.add(
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Column(children: [
+              post.toWidget(commentOnPressed, repostOnPressed),
+              buildTreeWithoutScroll(post.comments),
+            ]),
+          ),
+        ),
+      );
+      temp.add(const VerticalDivider(
+        width: 20,
+        thickness: 10,
+        indent: 20,
+        endIndent: 0,
+        color: Colors.grey,
+      ));
+    }
+    return temp;
+  }
+
   Widget buildTree(List<Post> posts) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          for (Post post in posts)
-            SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: Column(children: [
-                  post.toWidget(commentOnPressed, repostOnPressed),
-                  buildTreeWithoutScroll(post.comments)
-                ]))
-        ],
+    return Scrollbar(
+      thumbVisibility: true,
+      controller: controller,
+      child: SingleChildScrollView(
+        controller: controller,
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: forPosts(posts),
+        ),
       ),
     );
   }
