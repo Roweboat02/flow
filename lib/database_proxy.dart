@@ -159,10 +159,13 @@ class DatabaseProxy {
   Future makeNewChat(String name, List<Person> users) async {
     String date = DateTime.now().toString();
     String chatID = "$users/$name/$date".hashCode.toString();
-
+    Position pos = await position;
     final ref = db.collection("chats").doc(chatID);
     ref.set({
       "name": name,
+      "lat": pos.latitude,
+      "long": pos.longitude,
+      "elevation": pos.altitude,
       "picture": await getProfilePictureURL(),
       "date": date,
       "uids": users.map((e) => e.uid).toList(),
