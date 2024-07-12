@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:flow/database_proxy.dart';
 import 'package:flow/images/camera_or_gallery_dialog.dart';

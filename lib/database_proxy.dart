@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -354,7 +353,7 @@ class DatabaseProxy {
           longs[loc],
           date,
           elevation,
-          image: url == "" || url == null ? null : NetworkImage(url));
+          image: url == "" ? null : NetworkImage(url));
       final commentRef = await db
           .collection("posts")
           .doc(docSnapshot.id)
