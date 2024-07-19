@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flow/post.dart';
 import 'package:flutter/material.dart';
 
 class TreeView extends StatelessWidget {
-  final List<Post> posts;
+  final Stream<Post> posts;
+  List<Post> _posts = [];
   final Function commentOnPressed;
   final Function repostOnPressed;
   final ScrollController controller = ScrollController();
@@ -45,22 +48,31 @@ class TreeView extends StatelessWidget {
     return temp;
   }
 
-  Widget buildTree(List<Post> posts) {
-    return Scrollbar(
-      thumbVisibility: true,
-      controller: controller,
-      child: SingleChildScrollView(
-        controller: controller,
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: forPosts(posts),
-        ),
-      ),
-    );
+  Widget buildTree() {
+    return StreamBuilder<Post>(
+        stream: posts,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
+          } else {
+            _posts.add(snapshot.data!);
+            return Scrollbar(
+              thumbVisibility: true,
+              controller: controller,
+              child: SingleChildScrollView(
+                controller: controller,
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: forPosts(_posts),
+                ),
+              ),
+            );
+          }
+        });
   }
 
   @override
   Widget build(BuildContext context) {
-    return buildTree(posts);
+    return buildTree();
   }
 }

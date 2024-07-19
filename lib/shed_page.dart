@@ -1,12 +1,14 @@
 import 'package:flow/database_proxy.dart';
 import 'package:flow/new_comment_page.dart';
 import 'package:flow/person.dart';
+import 'package:flow/post.dart';
 import 'package:flow/tree_view.dart';
 import 'package:flutter/material.dart';
 
 class Shed {
   DatabaseProxy db;
   Person user;
+
   Shed(this.db, this.user);
 
   static NavigationDestination destination() {
@@ -84,26 +86,13 @@ class Shed {
                 )
               ],
             ),
-            FutureBuilder(
-                future: db.getShed(),
-                builder: ((context, snapshot) {
-                  if (snapshot.hasData) {
-                    return TreeView(
-                        snapshot.data!,
-                        (String postID) => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    NewCommentPage(db, postID))),
-                        (String postID) => db.repost(postID));
-                  } else {
-                    return const SizedBox(
-                      width: 60,
-                      height: 60,
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                }))
+            TreeView(
+                db.getShed(),
+                (String postID) => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => NewCommentPage(db, postID))),
+                (String postID) => db.repost(postID))
           ],
         ));
   }
