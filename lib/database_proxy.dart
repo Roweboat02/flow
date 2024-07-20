@@ -317,7 +317,7 @@ class DatabaseProxy {
       } else {
         postIDs.add(docSnapshot.id);
       }
-      ;
+
       Map<String, dynamic> posts = docSnapshot.data();
       String content = posts["content"];
       String username = posts["user"];
