@@ -370,8 +370,6 @@ class DatabaseProxy {
   }
 
   Stream<Post> getFeed() async* {
-    print("test:");
-    print(DistanceAspect.findDistance(51.5007, 0.1246, 40.6892, 74.0445));
     final postCollection = await db.collection("posts").get();
     Position pos = await position;
 
@@ -388,13 +386,6 @@ class DatabaseProxy {
         comment.setComment(docSnapshot.id);
         post.addComment(comment);
       }
-      print(post.content);
-      print("${post.lat}, ${post.long}, ${pos.latitude},${pos.longitude}");
-      print(DistanceAspect.findDistance(
-          post.lat, post.long, pos.latitude, pos.longitude));
-      print(DistanceAspect.findDistance(
-              post.lat, post.long, pos.latitude, pos.longitude) <
-          DistanceAspect.maxDist);
       if (DistanceAspect.findDistance(
               post.lat, post.long, pos.latitude, pos.longitude) <
           DistanceAspect.maxDist) {
