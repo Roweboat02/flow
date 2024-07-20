@@ -34,13 +34,13 @@ class TreeView extends StatelessWidget {
           ),
         ),
       );
-      temp.add(const VerticalDivider(
-        width: 20,
-        thickness: 10,
-        indent: 20,
-        endIndent: 0,
-        color: Colors.grey,
-      ));
+      // temp.add(const VerticalDivider(
+      //   width: 20,
+      //   thickness: 10,
+      //   indent: 20,
+      //   endIndent: 0,
+      //   color: Colors.grey,
+      // ));
     }
     return temp;
   }
