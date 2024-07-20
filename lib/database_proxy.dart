@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,7 +7,6 @@ import 'package:flow/chat/chat.dart';
 import 'package:flow/person.dart';
 import 'package:flow/post.dart';
 import 'package:flow/post_sorting/distance_aspect.dart';
-import 'package:flow/post_sorting/relativity_god.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -352,6 +350,7 @@ class DatabaseProxy {
       if (DistanceAspect.findDistance(lat, long, pos.latitude, pos.longitude) <
           DistanceAspect.maxDist) {
         yield post;
+        continue;
       }
       final repostSnapshot = await db
           .collection("posts")
@@ -364,36 +363,20 @@ class DatabaseProxy {
                 pos.latitude, pos.longitude) <
             DistanceAspect.maxDist) {
           yield post;
+          continue;
         }
       }
     }
   }
 
   Stream<Post> getFeed() async* {
+    print("test:");
+    print(DistanceAspect.findDistance(51.5007, 0.1246, 40.6892, 74.0445));
     final postCollection = await db.collection("posts").get();
     Position pos = await position;
 
     for (var docSnapshot in postCollection.docs) {
-      Map<String, dynamic> posts = docSnapshot.data();
-      String content = posts["content"];
-      String username = posts["user"];
-      String uid = posts["user"];
-      String profileURL = posts["profile_picture"];
-      String url = posts["picture"];
-      DateTime date = DateTime.parse(posts["date"]);
-      num elevation = posts["elevation"];
-      num lat = posts["lat"];
-      num long = posts["long"];
-
-      Post post = Post(
-          content,
-          docSnapshot.id,
-          Person(Image.network(profileURL), username, uid),
-          lat,
-          long,
-          date,
-          elevation,
-          image: url == "" ? null : NetworkImage(url));
+      Post post = _mapToPost(docSnapshot.data(), docSnapshot.id);
 
       final commentRef = await db
           .collection("posts")
@@ -405,21 +388,31 @@ class DatabaseProxy {
         comment.setComment(docSnapshot.id);
         post.addComment(comment);
       }
-      if (DistanceAspect.findDistance(lat, long, pos.latitude, pos.longitude) <
+      print(post.content);
+      print("${post.lat}, ${post.long}, ${pos.latitude},${pos.longitude}");
+      print(DistanceAspect.findDistance(
+          post.lat, post.long, pos.latitude, pos.longitude));
+      print(DistanceAspect.findDistance(
+              post.lat, post.long, pos.latitude, pos.longitude) <
+          DistanceAspect.maxDist);
+      if (DistanceAspect.findDistance(
+              post.lat, post.long, pos.latitude, pos.longitude) <
           DistanceAspect.maxDist) {
         yield post;
-      }
-      final repostSnapshot = await db
-          .collection("posts")
-          .doc(docSnapshot.id)
-          .collection("reposts")
-          .get();
-      for (var d in repostSnapshot.docs) {
-        Map<String, dynamic> reposts = d.data();
-        if (DistanceAspect.findDistance(reposts["lat"]!, reposts["long"]!,
-                pos.latitude, pos.longitude) <
-            DistanceAspect.maxDist) {
-          yield post;
+      } else {
+        final repostSnapshot = await db
+            .collection("posts")
+            .doc(docSnapshot.id)
+            .collection("reposts")
+            .get();
+        for (var d in repostSnapshot.docs) {
+          Map<String, dynamic> reposts = d.data();
+          if (DistanceAspect.findDistance(reposts["lat"]!, reposts["long"]!,
+                  pos.latitude, pos.longitude) <
+              DistanceAspect.maxDist) {
+            yield post;
+            continue;
+          }
         }
       }
     }

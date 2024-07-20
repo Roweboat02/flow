@@ -7,17 +7,18 @@ import 'package:geolocator/geolocator.dart';
 
 class DistanceAspect implements FilterAspect {
   static num r = 6371;
-  static num maxDist = 15;
+  static num maxDist = 100;
 
   static num findDistance(num lat0, num long0, num lat1, num long1) {
-    return 2 *
-        r *
-        math.asin(math.sqrt((1 -
-                math.cos(lat1 - lat0) +
-                math.cos(lat0) *
-                    math.cos(lat1) *
-                    (1 - math.cos(long1 - long0))) /
-            2));
+    var dLat = (lat1 - lat0) * math.pi / 180.0;
+    var dLong = (long1 - long0) * math.pi / 180.0;
+    var l1 = lat1 * math.pi / 180.0;
+    var l0 = lat0 * math.pi / 180.0;
+    var a = math.pow(math.sin(dLat / 2), 2);
+    var b = math.cos(l1) * math.cos(l0);
+    var c = math.pow(math.sin(dLong / 2), 2);
+    var sqrt = math.sqrt(a + b * c);
+    return 2 * r * math.asin(sqrt);
   }
 
   static List<num> findDistances(

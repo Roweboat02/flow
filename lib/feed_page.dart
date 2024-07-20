@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 class Feed {
   DatabaseProxy db;
   Person user;
+  Set<Post> posts = {};
 
   Feed(this.db, this.user);
 
@@ -25,13 +26,25 @@ class Feed {
         margin: const EdgeInsets.all(8.0),
         child: SizedBox.expand(
           child: Center(
-              child: TreeView(
-                  db.getFeed(),
-                  (String postID) => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => NewCommentPage(db, postID))),
-                  (String postID) => db.repost(postID))),
+              child: StreamBuilder<Post>(
+                  stream: db.getFeed(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else {
+                      if (snapshot.hasData) {
+                        posts.add(snapshot.data!);
+                      }
+                      return TreeView(
+                          posts.toSet(),
+                          (String postID) => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      NewCommentPage(db, postID))),
+                          (String postID) => db.repost(postID));
+                    }
+                  })),
         ));
   }
 }

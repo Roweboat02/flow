@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 class Shed {
   DatabaseProxy db;
   Person user;
+  List<Post> posts = [];
 
   Shed(this.db, this.user);
 
@@ -86,13 +87,25 @@ class Shed {
                 )
               ],
             ),
-            TreeView(
-                db.getShed(),
-                (String postID) => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => NewCommentPage(db, postID))),
-                (String postID) => db.repost(postID))
+            StreamBuilder<Post>(
+                stream: db.getShed(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else {
+                    if (snapshot.hasData) {
+                      posts.add(snapshot.data!);
+                    }
+                    return TreeView(
+                        posts.toSet(),
+                        (String postID) => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    NewCommentPage(db, postID))),
+                        (String postID) => db.repost(postID));
+                  }
+                })
           ],
         ));
   }
