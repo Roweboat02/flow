@@ -1,6 +1,6 @@
-import 'package:flow/chat/chat.dart';
-import 'package:flow/database_proxy.dart';
-import 'package:flow/person.dart';
+import 'package:flow/Pages/chat/chat.dart';
+import 'package:flow/DatabaseProxy/database_proxy.dart';
+import 'package:flow/Constructs/person.dart';
 import 'package:flutter/material.dart';
 
 import 'messages_page.dart';

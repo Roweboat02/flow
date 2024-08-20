@@ -36,7 +36,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ),
                 Flexible(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: ElevatedButton(
                         child: const Text(
                           'Sign up',
@@ -45,6 +45,20 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         onPressed: () {
                           Navigator.pushNamed(context, 'registration_screen');
                         }),
+                  ),
+                ),
+                Flexible(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: ElevatedButton(
+                      child: const Text(
+                        'Guest',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                      onPressed: () {
+                        Navigator.pushNamed(context, 'guest_screen');
+                      },
+                    ),
                   ),
                 ),
               ]),

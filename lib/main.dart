@@ -1,18 +1,19 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flow/chat/chats_page.dart';
-import 'package:flow/database_proxy.dart';
-import 'package:flow/feed_page.dart';
+import 'package:flow/Login/guest_screen.dart';
+import 'package:flow/Pages/chat/chats_page.dart';
+import 'package:flow/DatabaseProxy/database_proxy.dart';
+import 'package:flow/Pages/feed_page.dart';
 import 'package:flow/firebase_options.dart';
-import 'package:flow/login/login_screen.dart';
-import 'package:flow/shed_page.dart';
-import 'package:flow/person.dart';
-import 'package:flow/login/signup_screen.dart';
-import 'package:flow/login/welcome_screen.dart';
+import 'package:flow/Login/login_screen.dart';
+import 'package:flow/Pages/shed_page.dart';
+import 'package:flow/Constructs/person.dart';
+import 'package:flow/Login/signup_screen.dart';
+import 'package:flow/Login/welcome_screen.dart';
 import 'package:flutter/material.dart';
 
-import 'chat/new_chat_page.dart';
-import 'new_post_page.dart';
+import 'Pages/chat/new_chat_page.dart';
+import 'Pages/new_post_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,14 +29,22 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    Person? _user = null;
+
+    setUser(Person user) {
+      _user = user;
+    }
+
     return MaterialApp(
       title: 'Neighbor',
       initialRoute: "welcome_screen",
       routes: {
         'welcome_screen': (context) => WelcomeScreen(),
-        'registration_screen': (context) => RegistrationScreen(),
-        'login_screen': (context) => LoginScreen(),
-        'home_screen': (context) => NavigationExample(title: 'Neighbor'),
+        'registration_screen': (context) => RegistrationScreen(setUser),
+        'login_screen': (context) => LoginScreen(setUser),
+        'guest_screen': (context) => GuestScreen(setUser),
+        'home_screen': (context) => NavigationExample(
+            title: 'Neighbor', user: _user!, db: DatabaseProxy(_user!)),
         //https://medium.com/code-for-cause/flutter-registration-login-using-firebase-5ada3f14c066
       },
       theme: ThemeData(
@@ -47,8 +56,10 @@ class MyApp extends StatelessWidget {
 }
 
 class NavigationExample extends StatefulWidget {
-  const NavigationExample({super.key, required this.title});
-
+  const NavigationExample(
+      {super.key, required this.title, required this.user, required this.db});
+  final DatabaseProxy db;
+  final Person user;
   final String title;
 
   @override
@@ -56,18 +67,16 @@ class NavigationExample extends StatefulWidget {
 }
 
 class _NavigationExampleState extends State<NavigationExample> {
-  late DatabaseProxy db;
   late List pages;
-  late Person user;
   int currentPageIndex = 0;
 
   @override
   void initState() {
-    user = Person(null, FirebaseAuth.instance.currentUser!.displayName!,
-        FirebaseAuth.instance.currentUser!.uid);
-    user.setProfilePicture(DatabaseProxy.getProfilePictureURL());
-    db = DatabaseProxy(user);
-    pages = [Shed(db, user), Feed(db, user), ChatsPage(db, user)];
+    pages = [
+      Shed(widget.db, widget.user),
+      Feed(widget.db, widget.user),
+      ChatsPage(widget.db, widget.user)
+    ];
     super.initState();
   }
 
@@ -78,9 +87,11 @@ class _NavigationExampleState extends State<NavigationExample> {
         child: Icon(Icons.add),
         onPressed: currentPageIndex != 2
             ? () => Navigator.push(context,
-                MaterialPageRoute(builder: (context) => NewPostPage(db)))
-            : () => Navigator.push(context,
-                MaterialPageRoute(builder: (context) => NewChatPage(db, user))),
+                MaterialPageRoute(builder: (context) => NewPostPage(widget.db)))
+            : () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => NewChatPage(widget.db, widget.user))),
       ),
       bottomNavigationBar: NavigationBar(
           onDestinationSelected: (int index) {
@@ -89,18 +100,18 @@ class _NavigationExampleState extends State<NavigationExample> {
             });
           },
           selectedIndex: currentPageIndex,
-          destinations: [
-            const NavigationDestination(
+          destinations: const [
+            NavigationDestination(
               selectedIcon: Icon(Icons.home),
               icon: Icon(Icons.home_outlined),
               label: 'Shed',
             ),
-            const NavigationDestination(
+            NavigationDestination(
               selectedIcon: Icon(Icons.view_list),
               icon: Icon(Icons.view_list),
               label: 'Feed',
             ),
-            const NavigationDestination(
+            NavigationDestination(
               icon: Icon(Icons.messenger_sharp),
               label: 'Messages',
             )

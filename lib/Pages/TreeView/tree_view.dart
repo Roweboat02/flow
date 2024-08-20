@@ -1,4 +1,4 @@
-import 'package:flow/post.dart';
+import 'package:flow/Constructs/post.dart';
 import 'package:flutter/material.dart';
 
 class TreeView extends StatelessWidget {

@@ -1,5 +1,8 @@
-import 'package:flow/database_proxy.dart';
-import 'package:flow/login/new_user.dart';
+import 'dart:typed_data';
+
+import 'package:flow/Constructs/person.dart';
+import 'package:flow/DatabaseProxy/database_proxy.dart';
+import 'package:flow/Login/new_user.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -23,7 +26,8 @@ const kTextFieldDecoration = InputDecoration(
 );
 
 class RegistrationScreen extends StatefulWidget {
-  const RegistrationScreen({super.key});
+  final Function setUser;
+  const RegistrationScreen(this.setUser, {super.key});
 
   @override
   _RegistrationScreenState createState() => _RegistrationScreenState();
@@ -94,13 +98,22 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           onPressed: () {},
                         )));
                   } else {
-                    final user = await _auth.createUserWithEmailAndPassword(
+                    final userCred = await _auth.createUserWithEmailAndPassword(
                         email: email, password: password);
 
-                    user.user!.updateDisplayName(username);
+                    userCred.user!.updateDisplayName(username);
+                    _setUser(Uint8List? image) async {
+                      widget.setUser(Person(
+                          image == null
+                              ? DatabaseProxy.defaultProfileURL()
+                              : await DatabaseProxy.uploadProfilePicture(
+                                  image!, userCred.user!.uid),
+                          username,
+                          userCred.user!.uid));
+                    }
 
                     Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => NewUserPage(user)));
+                        builder: (context) => NewUserPage(userCred, _setUser)));
                   }
                 } on FirebaseAuthException catch (e) {
                   if (e.code == "email-already-in-use") {

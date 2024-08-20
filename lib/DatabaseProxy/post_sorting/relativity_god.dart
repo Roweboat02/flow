@@ -1,6 +1,6 @@
-import 'package:flow/post.dart';
-import 'package:flow/post_sorting/distance_aspect.dart';
-import 'package:flow/post_sorting/filter_aspect.dart';
+import 'package:flow/Constructs/post.dart';
+import 'package:flow/DatabaseProxy/post_sorting/distance_aspect.dart';
+import 'package:flow/DatabaseProxy/post_sorting/filter_aspect.dart';
 
 class RelativityGod {
   List<FilterAspect> filters = [DistanceAspect()];

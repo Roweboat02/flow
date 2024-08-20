@@ -1,8 +1,8 @@
-import 'package:flow/database_proxy.dart';
-import 'package:flow/new_comment_page.dart';
-import 'package:flow/person.dart';
-import 'package:flow/post.dart';
-import 'package:flow/tree_view.dart';
+import 'package:flow/DatabaseProxy/database_proxy.dart';
+import 'package:flow/Pages/new_comment_page.dart';
+import 'package:flow/Constructs/person.dart';
+import 'package:flow/Constructs/post.dart';
+import 'package:flow/Pages/TreeView/tree_view.dart';
 import 'package:flutter/material.dart';
 
 class Feed {

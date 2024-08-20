@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
-import 'package:flow/database_proxy.dart';
-import 'package:flow/images/camera_or_gallery_dialog.dart';
+import 'package:flow/DatabaseProxy/database_proxy.dart';
+import 'package:flow/Images/camera_or_gallery_dialog.dart';
 import 'package:flutter/material.dart';
 
 class NewPostPage extends StatefulWidget {

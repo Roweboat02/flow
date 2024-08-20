@@ -1,4 +1,4 @@
-import 'package:flow/database_proxy.dart';
+import 'package:flow/DatabaseProxy/database_proxy.dart';
 import 'package:flutter/material.dart';
 
 class Person {

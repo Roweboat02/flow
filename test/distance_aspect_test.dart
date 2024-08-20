@@ -1,6 +1,5 @@
-import 'package:flow/post_sorting/distance_aspect.dart';
+import 'package:flow/DatabaseProxy/post_sorting/distance_aspect.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'dart:math' as math;
 
 void main() {
   test("", () {

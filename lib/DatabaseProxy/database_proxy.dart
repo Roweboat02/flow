@@ -3,10 +3,10 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flow/chat/chat.dart';
-import 'package:flow/person.dart';
-import 'package:flow/post.dart';
-import 'package:flow/post_sorting/distance_aspect.dart';
+import 'package:flow/Pages/chat/chat.dart';
+import 'package:flow/Constructs/person.dart';
+import 'package:flow/Constructs/post.dart';
+import 'package:flow/DatabaseProxy/post_sorting/distance_aspect.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -18,6 +18,11 @@ class DatabaseProxy {
   final db = FirebaseFirestore.instance;
   // https://medium.com/firebase-tips-tricks/how-to-use-firebase-realtime-database-with-flutter-ebd98aba2c91
   final auth = FirebaseAuth.instance;
+
+  static defaultProfileURL() {
+    final ref = FirebaseStorage.instance.ref("default_profile.png");
+    return ref.getDownloadURL();
+  }
 
   static Future<bool> userExists(String username) async {
     final ref = FirebaseFirestore.instance.collection("users");
@@ -61,10 +66,10 @@ class DatabaseProxy {
         desiredAccuracy: LocationAccuracy.high);
   }
 
-  static Future<String> uploadProfilePicture(Uint8List data) async {
+  static Future<String> uploadProfilePicture(Uint8List data, String uid) async {
     Reference reference = FirebaseStorage.instance.ref();
     final ref = reference.child("users");
-    final userRef = ref.child("${FirebaseAuth.instance.currentUser!.uid}");
+    final userRef = ref.child("${uid}");
     final imageRef = userRef.child("profile_picture.png");
 
     await imageRef.putData(data);

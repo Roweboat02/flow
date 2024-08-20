@@ -1,4 +1,4 @@
-import 'package:flow/person.dart';
+import 'package:flow/Constructs/person.dart';
 import 'package:flutter/material.dart';
 
 class Post {

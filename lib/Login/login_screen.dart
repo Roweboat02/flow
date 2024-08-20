@@ -1,4 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flow/Constructs/person.dart';
+import 'package:flow/DatabaseProxy/database_proxy.dart';
 import 'package:flutter/material.dart';
 
 //code for designing the UI of our text field where the user writes his email id or password
@@ -20,7 +22,8 @@ const kTextFieldDecoration = InputDecoration(
     ));
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final Function setUser;
+  const LoginScreen(this.setUser, {super.key});
 
   @override
   _LoginScreenState createState() => _LoginScreenState();
@@ -71,8 +74,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: const Text('Log In'),
                 onPressed: () async {
                   try {
-                    await _auth.signInWithEmailAndPassword(
+                    final userCred = await _auth.signInWithEmailAndPassword(
                         email: email, password: password);
+                    widget.setUser(Person(
+                        Image.network(
+                            await DatabaseProxy.getProfilePictureURL()),
+                        userCred.user!.displayName!,
+                        userCred.user!.uid));
                   } on FirebaseAuthException catch (e) {
                     if (e.code == "user-not-found") {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(

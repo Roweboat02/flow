@@ -1,13 +1,14 @@
 import 'dart:typed_data';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flow/database_proxy.dart';
-import 'package:flow/images/camera_or_gallery_dialog.dart';
+import 'package:flow/DatabaseProxy/database_proxy.dart';
+import 'package:flow/Images/camera_or_gallery_dialog.dart';
 import 'package:flutter/material.dart';
 
 class NewUserPage extends StatefulWidget {
-  final UserCredential user;
-  const NewUserPage(this.user, {super.key});
+  final UserCredential userCred;
+  final Function setUser;
+  const NewUserPage(this.userCred, this.setUser, {super.key});
 
   @override
   State<NewUserPage> createState() => _NewUserPageState();
@@ -46,7 +47,9 @@ class _NewUserPageState extends State<NewUserPage> {
                     onPressed: () async {
                       if (image != null) {
                         DatabaseProxy.makeNewUser(
-                            await DatabaseProxy.uploadProfilePicture(image!));
+                            await DatabaseProxy.uploadProfilePicture(
+                                image!, widget.userCred.user!.uid));
+                        widget.setUser(image);
                         Navigator.pushNamed(context, "home_screen");
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(

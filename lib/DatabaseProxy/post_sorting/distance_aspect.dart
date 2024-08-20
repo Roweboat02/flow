@@ -1,6 +1,6 @@
-import 'package:flow/database_proxy.dart';
-import 'package:flow/post.dart';
-import 'package:flow/post_sorting/filter_aspect.dart';
+import 'package:flow/DatabaseProxy/database_proxy.dart';
+import 'package:flow/Constructs/post.dart';
+import 'package:flow/DatabaseProxy/post_sorting/filter_aspect.dart';
 import 'dart:math' as math;
 
 import 'package:geolocator/geolocator.dart';
